@@ -2,48 +2,52 @@ import { AnimatePresence, motion } from "framer-motion";
 import { PiggyBank } from "lucide-react";
 import { useMemo } from "react";
 import type { AnydayAdapter } from "../data/adapter";
-import { computeProjection, type SlashMap } from "../lib/finance";
+import type { SpendGroup } from "../data/types";
+import { computeProjection, getIncome, scheduledByCategory, spendByCategory, type SlashMap } from "../lib/finance";
 import { formatSEK } from "../lib/money";
 import { colorSets } from "../lib/colors";
 import { BubbleTile } from "../components/BubbleTile";
-import { GroupIsland } from "../components/GroupIsland";
-import { RingGauge } from "../components/RingGauge";
+import { MonthBox } from "../components/MonthBox";
 import { MonthProgress } from "../components/MonthProgress";
 import { InstanceChips } from "../components/InstanceChips";
 
 export function Simulate({
   adapter,
+  chestTotal,
   slashed,
   onToggleSlash,
   onMoveToChest,
+  onSelectGroup,
   onSelectCategory,
+  onOpenChest,
   showFigures,
 }: {
   adapter: AnydayAdapter;
+  chestTotal: number;
   slashed: SlashMap;
   onToggleSlash: (categoryId: string, instanceId: string) => void;
   onMoveToChest: (amount: number) => void;
+  onSelectGroup: (group: SpendGroup) => void;
   onSelectCategory: (categoryId: string) => void;
+  onOpenChest: () => void;
   showFigures: boolean;
 }) {
   const flowyCategories = adapter.categories.filter((c) => c.group === "flowy");
-  const fixedCategories = adapter.categories.filter((c) => c.group === "fixed");
 
   const projection = useMemo(() => computeProjection(adapter, slashed), [adapter, slashed]);
 
-  const income = projection.income;
-  const outRatio = projection.projectedTotalOut / income;
-  const isPositive = projection.projectedEndBalance >= 0;
-  const ringColor = isPositive
-    ? projection.projectedEndBalance >= income * 0.06
-      ? "#93c17e"
-      : "#bcaed4"
-    : "#e2a3b7";
-
-  const fixedProjected = fixedCategories.map((category) => {
-    const proj = projection.perCategory.find((p) => p.category.id === category.id)!;
-    return { category, amount: proj.projectedTotal };
-  });
+  const income = getIncome(adapter);
+  const spend = spendByCategory(adapter);
+  // Fixed is fully committed regardless of simulation — same figure as Overview.
+  const fixedTotal = spend
+    .filter((s) => s.category.group === "fixed")
+    .reduce((sum, s) => sum + s.spentSoFar + scheduledByCategory(adapter, s.category.id), 0);
+  // Flowy auto-simulates the rest of the month: spent so far + whatever
+  // projected purchases haven't been slashed. Slashing shrinks this box
+  // live and grows the unused/overflow area of the same box.
+  const flowyTotal = projection.perCategory
+    .filter((p) => p.category.group === "flowy")
+    .reduce((sum, p) => sum + p.projectedTotal, 0);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto no-scrollbar">
@@ -55,17 +59,18 @@ export function Simulate({
         </p>
       </div>
 
-      <div className="flex flex-col items-center px-5 pb-2 pt-5">
-        <RingGauge percent={outRatio} size={140} strokeWidth={12} color={ringColor}>
-          <div className="flex flex-col items-center">
-            <span className="text-xl font-semibold text-ink">
-              {formatSEK(Math.abs(projection.projectedEndBalance))}
-            </span>
-            <span className="text-[11px] font-medium text-slate-soft">
-              {isPositive ? "sparbart" : "överdrag"}
-            </span>
-          </div>
-        </RingGauge>
+      <div className="flex flex-col gap-3 px-5 pb-4 pt-3">
+        <div className="rounded-3xl bg-paper p-3 shadow-soft">
+          <MonthBox
+            income={income}
+            fixedTotal={fixedTotal}
+            flowyTotal={flowyTotal}
+            savedTotal={chestTotal}
+            showFigures={showFigures}
+            onSelectGroup={onSelectGroup}
+            onSelectSaved={onOpenChest}
+          />
+        </div>
 
         <AnimatePresence>
           {projection.totalSavedBySlash > 0 && (
@@ -76,7 +81,7 @@ export function Simulate({
               whileTap={{ scale: 0.94 }}
               transition={{ type: "spring", stiffness: 380, damping: 20 }}
               onClick={() => onMoveToChest(Math.round(projection.totalSavedBySlash))}
-              className="mt-4 flex items-center gap-2 rounded-full bg-blush px-4 py-2.5 text-forest shadow-soft"
+              className="flex items-center justify-center gap-2 rounded-full bg-blush px-4 py-2.5 text-forest shadow-soft"
             >
               <PiggyBank className="h-4 w-4" strokeWidth={2} />
               <span className="text-[13px] font-semibold">
@@ -85,9 +90,7 @@ export function Simulate({
             </motion.button>
           )}
         </AnimatePresence>
-      </div>
 
-      <div className="flex flex-col gap-3 px-5 py-4">
         {flowyCategories.map((category) => {
           const proj = projection.perCategory.find((p) => p.category.id === category.id)!;
           const colors = colorSets[category.color];
@@ -117,13 +120,6 @@ export function Simulate({
             </div>
           );
         })}
-
-        <GroupIsland
-          group="fixed"
-          items={fixedProjected}
-          showFigures={showFigures}
-          onSelectCategory={onSelectCategory}
-        />
       </div>
       <div className="h-2" />
     </div>

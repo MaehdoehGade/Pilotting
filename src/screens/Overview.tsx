@@ -1,8 +1,9 @@
 import { Gem } from "lucide-react";
 import type { AnydayAdapter } from "../data/adapter";
-import { getIncome, getSpentSoFar, spendByCategory } from "../lib/finance";
+import type { SpendGroup } from "../data/types";
+import { getIncome, scheduledByCategory, spendByCategory } from "../lib/finance";
 import { NatureBackdrop } from "../components/NatureBackdrop";
-import { Treemap, type TreemapLeaf } from "../components/Treemap";
+import { MonthBox } from "../components/MonthBox";
 import { LoanRow } from "../components/LoanRow";
 import { MonthProgress } from "../components/MonthProgress";
 
@@ -10,33 +11,29 @@ export function Overview({
   adapter,
   chestTotal,
   onOpenChest,
-  onSelectCategory,
+  onSelectGroup,
   onOpenMerge,
   showFigures,
 }: {
   adapter: AnydayAdapter;
   chestTotal: number;
   onOpenChest: () => void;
-  onSelectCategory: (categoryId: string) => void;
+  onSelectGroup: (group: SpendGroup) => void;
   onOpenMerge: () => void;
   showFigures: boolean;
 }) {
   const income = getIncome(adapter);
-  const spent = getSpentSoFar(adapter);
-  const available = Math.max(income - spent - chestTotal, 0);
   const spend = spendByCategory(adapter);
   const { today, daysInMonth } = adapter.monthPlan;
 
-  const leaves: TreemapLeaf[] = [
-    ...spend.map((s) => ({
-      kind: "category" as const,
-      id: s.category.id,
-      value: s.spentSoFar,
-      category: s.category,
-    })),
-    ...(chestTotal > 0 ? [{ kind: "saved" as const, id: "saved", value: chestTotal }] : []),
-    { kind: "unused" as const, id: "unused", value: available },
-  ];
+  // Fixed is the whole month's committed obligation, paid or not yet paid —
+  // it's locked in either way. Flowy only counts what's actually happened.
+  const fixedTotal = spend
+    .filter((s) => s.category.group === "fixed")
+    .reduce((sum, s) => sum + s.spentSoFar + scheduledByCategory(adapter, s.category.id), 0);
+  const flowyTotal = spend
+    .filter((s) => s.category.group === "flowy")
+    .reduce((sum, s) => sum + s.spentSoFar, 0);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto no-scrollbar">
@@ -55,12 +52,14 @@ export function Overview({
 
       <div className="flex flex-col gap-3 px-5 pb-4 pt-5">
         <div className="rounded-3xl bg-paper p-3 shadow-soft">
-          <Treemap
-            leaves={leaves}
+          <MonthBox
+            income={income}
+            fixedTotal={fixedTotal}
+            flowyTotal={flowyTotal}
+            savedTotal={chestTotal}
             showFigures={showFigures}
-            onSelectCategory={onSelectCategory}
+            onSelectGroup={onSelectGroup}
             onSelectSaved={onOpenChest}
-            onSelectUnused={onOpenChest}
           />
         </div>
 

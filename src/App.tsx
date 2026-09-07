@@ -1,11 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useMockAdapter } from "./data/adapter";
-import type { SavingsChest } from "./data/types";
+import type { SavingsChest, SpendGroup } from "./data/types";
 import { getSpentSoFar, type SlashMap } from "./lib/finance";
 import { BottomNav, type TabKey } from "./components/BottomNav";
 import { CategoryDetailSheet } from "./components/CategoryDetailSheet";
+import { GroupDetailSheet } from "./components/GroupDetailSheet";
 import { MergeLoansSheet } from "./components/MergeLoansSheet";
+import { NumbersToggle } from "./components/NumbersToggle";
 import { Overview } from "./screens/Overview";
 import { Simulate } from "./screens/Simulate";
 import { Chest } from "./screens/Chest";
@@ -27,6 +29,7 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [showFigures, setShowFigures] = useState(loadShowFigures);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [openGroup, setOpenGroup] = useState<SpendGroup | null>(null);
   const [mergeOpen, setMergeOpen] = useState(false);
 
   function toggleFigures() {
@@ -136,7 +139,7 @@ export default function App() {
                   adapter={adapter}
                   chestTotal={chestTotal}
                   onOpenChest={() => setTab("chest")}
-                  onSelectCategory={setSelectedCategoryId}
+                  onSelectGroup={setOpenGroup}
                   onOpenMerge={() => setMergeOpen(true)}
                   showFigures={showFigures}
                 />
@@ -144,10 +147,13 @@ export default function App() {
               {tab === "simulate" && (
                 <Simulate
                   adapter={adapter}
+                  chestTotal={chestTotal}
                   slashed={slashed}
                   onToggleSlash={toggleSlash}
                   onMoveToChest={moveToChest}
+                  onSelectGroup={setOpenGroup}
                   onSelectCategory={setSelectedCategoryId}
+                  onOpenChest={() => setTab("chest")}
                   showFigures={showFigures}
                 />
               )}
@@ -164,19 +170,19 @@ export default function App() {
             </motion.div>
           </AnimatePresence>
 
-          <button
-            onClick={toggleFigures}
-            aria-label={showFigures ? "Dölj siffror" : "Visa siffror"}
-            className="absolute left-5 top-8 z-20 flex h-9 items-center justify-center rounded-full bg-white/10 px-2.5 backdrop-blur"
-          >
-            <span
-              className={`text-[11px] font-bold tracking-tight ${
-                showFigures ? "text-blush" : "text-slate-soft line-through decoration-2"
-              }`}
-            >
-              123
-            </span>
-          </button>
+          <div className="absolute left-5 top-8 z-20">
+            <NumbersToggle on={showFigures} onChange={toggleFigures} />
+          </div>
+
+          <GroupDetailSheet
+            adapter={adapter}
+            group={openGroup}
+            onClose={() => setOpenGroup(null)}
+            onSelectCategory={(id) => {
+              setOpenGroup(null);
+              setSelectedCategoryId(id);
+            }}
+          />
 
           <CategoryDetailSheet
             adapter={adapter}
