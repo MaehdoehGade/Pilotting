@@ -10,19 +10,22 @@ export function BubbleTile({
   amount,
   size,
   index,
+  showFigures,
 }: {
   category: Category;
   amount: number;
   size: number;
   index: number;
+  showFigures: boolean;
 }) {
   const [revealed, setRevealed] = useState(false);
+  const labelVisible = showFigures || revealed;
   const colors = colorSets[category.color];
   const isFixed = category.group === "fixed";
 
   return (
     <motion.button
-      onClick={() => setRevealed((r) => !r)}
+      onClick={() => !showFigures && setRevealed((r) => !r)}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{
@@ -37,15 +40,20 @@ export function BubbleTile({
       style={{ width: size, height: size }}
     >
       <AnimatePresence>
-        {revealed && (
+        {labelVisible && (
           <motion.span
             initial={{ opacity: 0, y: 4, scale: 0.85 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.85 }}
             transition={{ type: "spring", stiffness: 420, damping: 24 }}
-            className="absolute -top-8 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-cream shadow-pop"
+            className="absolute -top-9 z-10 flex flex-col items-center whitespace-nowrap rounded-xl bg-ink px-2.5 py-1 text-center shadow-pop"
           >
-            {formatSEK(amount)}
+            <span className="text-[9.5px] font-medium leading-tight text-cream/70">
+              {category.name}
+            </span>
+            <span className="text-[11px] font-semibold leading-tight text-cream">
+              {formatSEK(amount)}
+            </span>
           </motion.span>
         )}
       </AnimatePresence>

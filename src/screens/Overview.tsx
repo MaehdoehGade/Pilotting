@@ -11,10 +11,12 @@ export function Overview({
   adapter,
   chestTotal,
   onOpenChest,
+  showFigures,
 }: {
   adapter: AnydayAdapter;
   chestTotal: number;
   onOpenChest: () => void;
+  showFigures: boolean;
 }) {
   const income = getIncome(adapter);
   const spent = getSpentSoFar(adapter);
@@ -55,23 +57,37 @@ export function Overview({
       </div>
 
       <div className="flex flex-col gap-3 px-5 pb-4 pt-5">
-        <GroupIsland group="fixed" items={fixed.map((s) => ({ category: s.category, amount: s.spentSoFar }))} />
-        <GroupIsland group="flowy" items={flowy.map((s) => ({ category: s.category, amount: s.spentSoFar }))} />
+        <GroupIsland
+          group="fixed"
+          items={fixed.map((s) => ({ category: s.category, amount: s.spentSoFar }))}
+          showFigures={showFigures}
+        />
+        <GroupIsland
+          group="flowy"
+          items={flowy.map((s) => ({ category: s.category, amount: s.spentSoFar }))}
+          showFigures={showFigures}
+        />
 
         <div className="rounded-3xl bg-paper p-4 shadow-soft">
           <div className="mb-3 flex h-6 w-6 items-center justify-center rounded-full bg-cream-dim">
             <Landmark className="h-3.5 w-3.5 text-slate-soft" strokeWidth={1.75} />
           </div>
-          <div className="flex items-center justify-center gap-4">
+          <div className={`flex items-center justify-center gap-4 ${showFigures ? "pt-6" : ""}`}>
             {adapter.externalLoans.map((loan) => {
               const size = 44 + Math.min(loan.balance / 62000, 1) * 30;
               return (
-                <div
-                  key={loan.id}
-                  className="flex items-center justify-center rounded-full bg-navy/70"
-                  style={{ width: size, height: size }}
-                >
-                  <Landmark className="h-[36%] w-[36%] text-ink" strokeWidth={1.75} />
+                <div key={loan.id} className="relative flex flex-col items-center">
+                  {showFigures && (
+                    <span className="absolute -top-7 whitespace-nowrap rounded-lg bg-ink px-2 py-0.5 text-[10px] font-semibold text-cream shadow-pop">
+                      {formatSEK(loan.balance)}
+                    </span>
+                  )}
+                  <div
+                    className="flex items-center justify-center rounded-full bg-navy/70"
+                    style={{ width: size, height: size }}
+                  >
+                    <Landmark className="h-[36%] w-[36%] text-ink" strokeWidth={1.75} />
+                  </div>
                 </div>
               );
             })}

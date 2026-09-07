@@ -19,11 +19,13 @@ export function Simulate({
   cutSteps,
   onCutStepChange,
   onMoveToChest,
+  showFigures,
 }: {
   adapter: AnydayAdapter;
   cutSteps: Record<string, number>;
   onCutStepChange: (categoryId: string, step: number) => void;
   onMoveToChest: (amount: number) => void;
+  showFigures: boolean;
 }) {
   const flowyCategories = adapter.categories.filter((c) => c.group === "flowy");
   const fixedCategories = adapter.categories.filter((c) => c.group === "fixed");
@@ -103,20 +105,28 @@ export function Simulate({
 
           return (
             <div key={category.id} className="flex items-center gap-3 rounded-2xl bg-paper p-3.5 shadow-soft">
-              <BubbleTile category={category} amount={proj.projectedTotal} size={56} index={0} />
+              <BubbleTile
+                category={category}
+                amount={proj.projectedTotal}
+                size={56}
+                index={0}
+                showFigures={showFigures}
+              />
               <div className="flex-1">
                 <SizePicker
                   colorHex={colors.hex}
                   sizes={pickerSizes}
+                  amounts={stepAmounts}
                   stepIndex={step}
                   onChange={(i) => onCutStepChange(category.id, i)}
+                  showFigures={showFigures}
                 />
               </div>
             </div>
           );
         })}
 
-        <GroupIsland group="fixed" items={fixedProjected} />
+        <GroupIsland group="fixed" items={fixedProjected} showFigures={showFigures} />
       </div>
       <div className="h-2" />
     </div>

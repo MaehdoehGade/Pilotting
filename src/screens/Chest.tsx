@@ -12,12 +12,14 @@ const DAY_MULTIPLES = [1, 3, 7];
 export function Chest({
   chests,
   avgDailySpend,
+  showFigures,
   onAddMoney,
   onToggleLock,
   onCreateChest,
 }: {
   chests: SavingsChest[];
   avgDailySpend: number;
+  showFigures: boolean;
   onAddMoney: (chestId: string, amount: number) => void;
   onToggleLock: (chestId: string, lockIndex: 0 | 1) => void;
   onCreateChest: (purpose: string, target: number | null) => void;
@@ -43,6 +45,7 @@ export function Chest({
             chest={chest}
             quickAmounts={quickAmounts}
             quickSizes={quickSizes}
+            showFigures={showFigures}
             onAddMoney={(amount) => onAddMoney(chest.id, amount)}
             onToggleLock={(i) => onToggleLock(chest.id, i)}
           />
@@ -74,12 +77,14 @@ function ChestCard({
   chest,
   quickAmounts,
   quickSizes,
+  showFigures,
   onAddMoney,
   onToggleLock,
 }: {
   chest: SavingsChest;
   quickAmounts: number[];
   quickSizes: number[];
+  showFigures: boolean;
   onAddMoney: (amount: number) => void;
   onToggleLock: (index: 0 | 1) => void;
 }) {
@@ -124,14 +129,19 @@ function ChestCard({
           <p className="truncate text-[13px] font-medium text-slate-soft">{chest.purpose}</p>
           <p className="text-xl font-semibold text-ink">{formatSEK(chest.balance)}</p>
           {chest.target && (
-            <div className="relative mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-cream-dim">
-              <motion.div
-                className="h-full rounded-full bg-plum"
-                animate={{ width: `${(progress ?? 0) * 100}%` }}
-                transition={{ type: "spring", stiffness: 200, damping: 26 }}
-              />
-              <div className="absolute right-0 top-1/2 h-2.5 w-0.5 -translate-y-1/2 bg-white/30" />
-            </div>
+            <>
+              <div className="relative mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-cream-dim">
+                <motion.div
+                  className="h-full rounded-full bg-plum"
+                  animate={{ width: `${(progress ?? 0) * 100}%` }}
+                  transition={{ type: "spring", stiffness: 200, damping: 26 }}
+                />
+                <div className="absolute right-0 top-1/2 h-2.5 w-0.5 -translate-y-1/2 bg-white/30" />
+              </div>
+              {showFigures && (
+                <p className="mt-1 text-[10.5px] text-slate-soft">mål {formatSEK(chest.target)}</p>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -159,14 +169,19 @@ function ChestCard({
 
       <div
         className="mt-3 flex items-end justify-center gap-4"
-        style={{ height: Math.max(...quickSizes) + 8 }}
+        style={{ height: Math.max(...quickSizes) + (showFigures ? 24 : 8) }}
       >
         {quickAmounts.map((amount, i) => (
           <button
             key={amount}
             onClick={() => onAddMoney(amount)}
-            className="flex flex-1 items-end justify-center"
+            className="flex flex-1 flex-col items-center justify-end gap-1"
           >
+            {showFigures && (
+              <span className="text-[10px] font-medium text-slate-soft">
+                +{formatSEK(amount)}
+              </span>
+            )}
             <motion.div
               whileTap={{ scale: 0.85 }}
               whileHover={{ scale: 1.05 }}

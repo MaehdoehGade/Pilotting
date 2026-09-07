@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMockAdapter } from "./data/adapter";
 import type { SavingsChest } from "./data/types";
@@ -8,12 +9,34 @@ import { Overview } from "./screens/Overview";
 import { Simulate } from "./screens/Simulate";
 import { Chest } from "./screens/Chest";
 
+function loadShowFigures(): boolean {
+  try {
+    const stored = window.localStorage.getItem("anyday-show-figures");
+    return stored === null ? true : stored === "1";
+  } catch {
+    return true;
+  }
+}
+
 export default function App() {
   const adapter = useMockAdapter();
   const [tab, setTab] = useState<TabKey>("overview");
   const [chests, setChests] = useState<SavingsChest[]>(adapter.savingsChests);
   const [cutSteps, setCutSteps] = useState<Record<string, number>>({});
   const [toast, setToast] = useState<string | null>(null);
+  const [showFigures, setShowFigures] = useState(loadShowFigures);
+
+  function toggleFigures() {
+    setShowFigures((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem("anyday-show-figures", next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }
 
   const chestTotal = useMemo(
     () => chests.reduce((sum, c) => sum + c.balance, 0),
@@ -98,6 +121,7 @@ export default function App() {
                   adapter={adapter}
                   chestTotal={chestTotal}
                   onOpenChest={() => setTab("chest")}
+                  showFigures={showFigures}
                 />
               )}
               {tab === "simulate" && (
@@ -108,12 +132,14 @@ export default function App() {
                     setCutSteps((prev) => ({ ...prev, [id]: step }))
                   }
                   onMoveToChest={moveToChest}
+                  showFigures={showFigures}
                 />
               )}
               {tab === "chest" && (
                 <Chest
                   chests={chests}
                   avgDailySpend={avgDailySpend}
+                  showFigures={showFigures}
                   onAddMoney={addMoney}
                   onToggleLock={toggleLock}
                   onCreateChest={createChest}
@@ -121,6 +147,18 @@ export default function App() {
               )}
             </motion.div>
           </AnimatePresence>
+
+          <button
+            onClick={toggleFigures}
+            aria-label={showFigures ? "Dölj siffror" : "Visa siffror"}
+            className="absolute left-5 top-8 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 backdrop-blur"
+          >
+            {showFigures ? (
+              <Eye className="h-4 w-4 text-blush" strokeWidth={1.75} />
+            ) : (
+              <EyeOff className="h-4 w-4 text-slate-soft" strokeWidth={1.75} />
+            )}
+          </button>
 
           <AnimatePresence>
             {toast && (

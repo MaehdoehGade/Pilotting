@@ -6,9 +6,11 @@ import { BubbleTile } from "./BubbleTile";
 export function GroupIsland({
   group,
   items,
+  showFigures,
 }: {
   group: SpendGroup;
   items: { category: Category; amount: number }[];
+  showFigures: boolean;
 }) {
   const sizes = scaleSizes(
     items.map((i) => i.amount),
@@ -22,7 +24,11 @@ export function GroupIsland({
       <div className="mb-3 flex h-6 w-6 items-center justify-center rounded-full bg-cream-dim">
         <Icon className="h-3.5 w-3.5 text-slate-soft" strokeWidth={1.75} />
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-3 py-1">
+      <div
+        className={`flex flex-wrap items-center justify-center gap-x-3 pb-1 pt-8 ${
+          showFigures ? "gap-y-[52px]" : "gap-y-3"
+        }`}
+      >
         {items.map(({ category, amount }, i) => (
           <BubbleTile
             key={category.id}
@@ -30,6 +36,7 @@ export function GroupIsland({
             amount={amount}
             size={sizes[i]}
             index={i}
+            showFigures={showFigures}
           />
         ))}
       </div>
