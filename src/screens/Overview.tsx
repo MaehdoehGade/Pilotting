@@ -1,10 +1,11 @@
-import { motion } from "framer-motion";
-import { ArrowDownRight, ArrowUpRight, Landmark } from "lucide-react";
+import { Gem, Landmark } from "lucide-react";
 import type { AnydayAdapter } from "../data/adapter";
 import { formatSEK } from "../lib/money";
 import { getIncome, getSpentSoFar, spendByCategory } from "../lib/finance";
 import { NatureBackdrop } from "../components/NatureBackdrop";
 import { GroupIsland } from "../components/GroupIsland";
+import { RingGauge } from "../components/RingGauge";
+import { MonthProgress } from "../components/MonthProgress";
 
 export function Overview({
   adapter,
@@ -21,130 +22,63 @@ export function Overview({
   const spend = spendByCategory(adapter);
   const fixed = spend.filter((s) => s.category.group === "fixed");
   const flowy = spend.filter((s) => s.category.group === "flowy");
-  const fixedTotal = fixed.reduce((s, c) => s + c.spentSoFar, 0);
-  const flowyTotal = flowy.reduce((s, c) => s + c.spentSoFar, 0);
-  const { today, daysInMonth, monthLabel } = adapter.monthPlan;
+  const { today, daysInMonth } = adapter.monthPlan;
+
+  const spentRatio = spent / income;
+  const ringColor =
+    spentRatio < 0.7 ? "#93c17e" : spentRatio < 0.95 ? "#bcaed4" : "#e2a3b7";
 
   return (
     <div className="flex h-full flex-col overflow-y-auto no-scrollbar">
       <div className="relative">
-        <NatureBackdrop className="h-44 w-full" />
-        <div className="absolute inset-0 flex flex-col justify-between p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-forest/70">
-                {monthLabel} · dag {today} av {daysInMonth}
-              </p>
-              <h1 className="text-lg font-semibold text-forest">Hej Alex 👋</h1>
-            </div>
-            <button
-              onClick={onOpenChest}
-              className="rounded-full bg-forest/90 px-3 py-1.5 text-[11px] font-medium text-paper shadow-soft"
-            >
-              Sparkista · {formatSEK(chestTotal)}
-            </button>
-          </div>
-          <motion.div
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="rounded-2xl bg-paper/95 p-4 shadow-pop"
-          >
-            <p className="text-[11px] font-medium text-slate">
-              Kvar att röra dig med just nu
-            </p>
-            <p className="text-2xl font-semibold text-ink">{formatSEK(available)}</p>
-          </motion.div>
+        <NatureBackdrop className="h-40 w-full" />
+        <div className="absolute inset-x-0 top-0 px-5 pt-4">
+          <MonthProgress fraction={today / daysInMonth} />
         </div>
+        <button
+          onClick={onOpenChest}
+          className="absolute right-5 top-8 flex h-10 w-10 items-center justify-center rounded-full bg-cream/50 backdrop-blur"
+        >
+          <Gem className="h-5 w-5 text-blush" strokeWidth={1.75} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 pt-4">
-        <StatChip
-          label="In hittills"
-          value={formatSEK(income)}
-          Icon={ArrowDownRight}
-          tone="forest"
-        />
-        <StatChip
-          label="Ut hittills"
-          value={formatSEK(spent)}
-          Icon={ArrowUpRight}
-          tone="plum"
-        />
+      <div className="-mt-14 flex flex-col items-center px-5">
+        <RingGauge percent={spentRatio} color={ringColor}>
+          <div className="flex flex-col items-center">
+            <span className="text-2xl font-semibold text-ink">
+              {formatSEK(available)}
+            </span>
+            <span className="text-[11px] text-slate-soft">kvar</span>
+          </div>
+        </RingGauge>
       </div>
 
-      <div className="flex flex-col gap-3 px-5 py-4">
-        <GroupIsland
-          title="Fast"
-          hint="Samma varje månad — svårt att ändra på"
-          items={fixed.map((s) => ({ category: s.category, amount: s.spentSoFar }))}
-          total={fixedTotal}
-        />
-        <GroupIsland
-          title="Flyt"
-          hint="Varierar — här finns utrymme att styra"
-          items={flowy.map((s) => ({ category: s.category, amount: s.spentSoFar }))}
-          total={flowyTotal}
-        />
+      <div className="flex flex-col gap-3 px-5 pb-4 pt-5">
+        <GroupIsland group="fixed" items={fixed.map((s) => ({ category: s.category, amount: s.spentSoFar }))} />
+        <GroupIsland group="flowy" items={flowy.map((s) => ({ category: s.category, amount: s.spentSoFar }))} />
 
         <div className="rounded-3xl bg-paper p-4 shadow-soft">
-          <p className="mb-2 text-sm font-semibold text-ink">Lån hos andra</p>
-          <div className="flex flex-col gap-2">
-            {adapter.externalLoans.map((loan) => (
-              <div
-                key={loan.id}
-                className="flex items-center justify-between rounded-2xl bg-cream-dim px-3 py-2.5"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy/10">
-                    <Landmark className="h-4 w-4 text-navy" strokeWidth={1.75} />
-                  </span>
-                  <div>
-                    <p className="text-[12.5px] font-medium text-ink">{loan.provider}</p>
-                    <p className="text-[11px] text-slate">
-                      {loan.label} · {loan.interestRate}% ränta
-                    </p>
-                  </div>
-                </div>
-                <p className="text-[12.5px] font-semibold text-ink">
-                  {formatSEK(loan.balance)}
-                </p>
-              </div>
-            ))}
+          <div className="mb-3 flex h-6 w-6 items-center justify-center rounded-full bg-cream-dim">
+            <Landmark className="h-3.5 w-3.5 text-slate-soft" strokeWidth={1.75} />
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-slate">
-            Anyfin kan hjälpa dig samla lånen till en lägre ränta — mer om det
-            i nästa version.
-          </p>
+          <div className="flex items-center justify-center gap-4">
+            {adapter.externalLoans.map((loan) => {
+              const size = 44 + Math.min(loan.balance / 62000, 1) * 30;
+              return (
+                <div
+                  key={loan.id}
+                  className="flex items-center justify-center rounded-full bg-navy/70"
+                  style={{ width: size, height: size }}
+                >
+                  <Landmark className="h-[36%] w-[36%] text-ink" strokeWidth={1.75} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
       <div className="h-2" />
-    </div>
-  );
-}
-
-function StatChip({
-  label,
-  value,
-  Icon,
-  tone,
-}: {
-  label: string;
-  value: string;
-  Icon: typeof ArrowUpRight;
-  tone: "forest" | "plum";
-}) {
-  const toneClasses =
-    tone === "forest" ? "bg-forest/10 text-forest" : "bg-plum/10 text-plum";
-  return (
-    <div className="flex items-center gap-2.5 rounded-2xl bg-paper p-3 shadow-soft">
-      <span className={`flex h-8 w-8 items-center justify-center rounded-full ${toneClasses}`}>
-        <Icon className="h-4 w-4" strokeWidth={2} />
-      </span>
-      <div>
-        <p className="text-[11px] text-slate">{label}</p>
-        <p className="text-[13px] font-semibold text-ink">{value}</p>
-      </div>
     </div>
   );
 }

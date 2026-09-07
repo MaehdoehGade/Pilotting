@@ -42,14 +42,14 @@ export default function App() {
       return prev.map((c, i) => (i === 0 ? { ...c, balance: c.balance + amount } : c));
     });
     setCutSteps({});
-    showToast(`${Math.round(amount)} kr flyttat till sparkistan`);
+    showToast(`+${Math.round(amount)} kr`);
   }
 
   function addMoney(chestId: string, amount: number) {
     setChests((prev) =>
       prev.map((c) => (c.id === chestId ? { ...c, balance: c.balance + amount } : c)),
     );
-    showToast(`${amount} kr tillagt`);
+    showToast(`+${amount} kr`);
   }
 
   function toggleLock(chestId: string, lockIndex: 0 | 1) {
@@ -79,7 +79,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-cream-dim sm:p-6">
-      <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-cream sm:h-[880px] sm:rounded-[44px] sm:shadow-pop sm:ring-1 sm:ring-black/5">
+      <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-cream sm:h-[880px] sm:rounded-[44px] sm:shadow-pop sm:ring-1 sm:ring-white/10">
         <div className="relative flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -125,7 +125,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 24 }}
-                className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-forest px-4 py-2 text-[12px] font-medium text-paper shadow-pop"
+                className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-blush px-4 py-2 text-[12px] font-medium text-forest shadow-pop"
               >
                 {toast}
               </motion.div>

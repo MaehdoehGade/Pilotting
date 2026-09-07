@@ -1,31 +1,26 @@
-import { formatSEK } from "../lib/money";
+import { Lock, Waves } from "lucide-react";
 import { scaleSizes } from "../lib/scale";
-import type { Category } from "../data/types";
+import type { Category, SpendGroup } from "../data/types";
 import { BubbleTile } from "./BubbleTile";
 
 export function GroupIsland({
-  title,
-  hint,
+  group,
   items,
-  total,
-  onSelect,
 }: {
-  title: string;
-  hint: string;
+  group: SpendGroup;
   items: { category: Category; amount: number }[];
-  total: number;
-  onSelect?: (categoryId: string) => void;
 }) {
-  const sizes = scaleSizes(items.map((i) => i.amount));
+  const sizes = scaleSizes(
+    items.map((i) => i.amount),
+    68,
+    128,
+  );
+  const Icon = group === "fixed" ? Lock : Waves;
 
   return (
     <div className="rounded-3xl bg-paper p-4 shadow-soft">
-      <div className="mb-3 flex items-baseline justify-between">
-        <div>
-          <p className="text-sm font-semibold text-ink">{title}</p>
-          <p className="text-[11px] text-slate">{hint}</p>
-        </div>
-        <p className="text-sm font-semibold text-ink">{formatSEK(total)}</p>
+      <div className="mb-3 flex h-6 w-6 items-center justify-center rounded-full bg-cream-dim">
+        <Icon className="h-3.5 w-3.5 text-slate-soft" strokeWidth={1.75} />
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3 py-1">
         {items.map(({ category, amount }, i) => (
@@ -35,7 +30,6 @@ export function GroupIsland({
             amount={amount}
             size={sizes[i]}
             index={i}
-            onClick={() => onSelect?.(category.id)}
           />
         ))}
       </div>

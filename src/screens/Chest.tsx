@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Lock, Plus, Sparkles, Unlock } from "lucide-react";
+import { Check, Lock, Plus, Sparkles, Unlock, X } from "lucide-react";
 import { useState } from "react";
 import type { SavingsChest } from "../data/types";
 import { formatSEK } from "../lib/money";
 
 const QUICK_AMOUNTS = [100, 500, 1000];
+const QUICK_SIZES = [30, 42, 54];
 
 export function Chest({
   chests,
@@ -22,9 +23,8 @@ export function Chest({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto no-scrollbar">
-      <div className="px-5 pb-2 pt-5">
-        <p className="text-xs font-medium text-slate">Totalt sparat</p>
-        <h1 className="text-2xl font-semibold text-ink">{formatSEK(total)}</h1>
+      <div className="flex flex-col items-center px-5 pb-2 pt-8">
+        <h1 className="text-3xl font-semibold text-ink">{formatSEK(total)}</h1>
       </div>
 
       <div className="flex flex-col gap-4 px-5 py-3">
@@ -48,20 +48,11 @@ export function Chest({
         ) : (
           <button
             onClick={() => setCreating(true)}
-            className="flex items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-slate-soft/60 py-4 text-[13px] font-medium text-slate"
+            className="flex items-center justify-center rounded-3xl border-2 border-dashed border-white/10 py-5"
           >
-            <Plus className="h-4 w-4" strokeWidth={2} />
-            Ny sparkista med eget syfte
+            <Plus className="h-5 w-5 text-slate-soft" strokeWidth={2} />
           </button>
         )}
-
-        <div className="rounded-3xl bg-navy/5 p-4">
-          <p className="text-[12px] leading-relaxed text-navy">
-            <span className="font-semibold">Tips:</span> dubbellås gör det svårare
-            att tumma på sparandet mitt i månaden — lås upp båda bara när du
-            verkligen ska använda pengarna.
-          </p>
-        </div>
       </div>
       <div className="h-2" />
     </div>
@@ -82,13 +73,6 @@ function ChestCard({
 
   const lidY = lockCount === 2 ? 0 : lockCount === 1 ? -5 : -13;
   const lidRotate = lockCount === 2 ? 0 : lockCount === 1 ? -4 : -10;
-
-  const status =
-    lockCount === 2
-      ? "Dubbellåst — skyddad hela månaden"
-      : lockCount === 1
-        ? "Halvlåst — tänk efter innan uttag"
-        : "Olåst — fritt att ta ut";
 
   return (
     <div className="rounded-3xl bg-paper p-4 shadow-soft">
@@ -113,7 +97,7 @@ function ChestCard({
                 animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 420, damping: 12 }}
-                className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-forest text-paper"
+                className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-forest-bright text-forest"
               >
                 <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
               </motion.div>
@@ -122,55 +106,54 @@ function ChestCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[14px] font-semibold text-ink">{chest.purpose}</p>
-          <p className="text-lg font-semibold text-ink">{formatSEK(chest.balance)}</p>
+          <p className="truncate text-[13px] font-medium text-slate-soft">{chest.purpose}</p>
+          <p className="text-xl font-semibold text-ink">{formatSEK(chest.balance)}</p>
           {chest.target && (
-            <>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-cream-dim">
-                <motion.div
-                  className="h-full rounded-full bg-plum"
-                  animate={{ width: `${(progress ?? 0) * 100}%` }}
-                  transition={{ type: "spring", stiffness: 200, damping: 26 }}
-                />
-              </div>
-              <p className="mt-0.5 text-[11px] text-slate">mål {formatSEK(chest.target)}</p>
-            </>
+            <div className="relative mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-cream-dim">
+              <motion.div
+                className="h-full rounded-full bg-plum"
+                animate={{ width: `${(progress ?? 0) * 100}%` }}
+                transition={{ type: "spring", stiffness: 200, damping: 26 }}
+              />
+              <div className="absolute right-0 top-1/2 h-2.5 w-0.5 -translate-y-1/2 bg-white/30" />
+            </div>
           )}
         </div>
       </div>
 
-      <p className="mt-3 text-[11.5px] font-medium text-slate">{status}</p>
-
-      <div className="mt-2 grid grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2">
         {[0, 1].map((i) => {
           const locked = chest.locks[i as 0 | 1];
           return (
             <button
               key={i}
               onClick={() => onToggleLock(i as 0 | 1)}
-              className={`flex items-center justify-center gap-1.5 rounded-xl py-2 text-[12px] font-medium ${
-                locked ? "bg-forest text-paper" : "bg-cream-dim text-slate"
+              className={`flex items-center justify-center rounded-xl py-2.5 ${
+                locked ? "bg-blush text-forest" : "bg-cream-dim text-slate-soft"
               }`}
             >
               {locked ? (
-                <Lock className="h-3.5 w-3.5" strokeWidth={2} />
+                <Lock className="h-4 w-4" strokeWidth={2} />
               ) : (
-                <Unlock className="h-3.5 w-3.5" strokeWidth={2} />
+                <Unlock className="h-4 w-4" strokeWidth={2} />
               )}
-              Lås {i + 1}
             </button>
           );
         })}
       </div>
 
-      <div className="mt-2 flex gap-2">
-        {QUICK_AMOUNTS.map((amount) => (
+      <div className="mt-2 flex h-16 items-end justify-center gap-4">
+        {QUICK_AMOUNTS.map((amount, i) => (
           <button
             key={amount}
             onClick={() => onAddMoney(amount)}
-            className="flex-1 rounded-xl bg-blush/40 py-2 text-[12px] font-semibold text-forest"
+            className="flex items-end justify-center pb-1"
           >
-            +{amount}
+            <motion.div
+              whileTap={{ scale: 0.85 }}
+              style={{ width: QUICK_SIZES[i], height: QUICK_SIZES[i] }}
+              className="rounded-full bg-blush/70"
+            />
           </button>
         ))}
       </div>
@@ -200,18 +183,17 @@ function NewChestForm({
         onCreate(purpose.trim(), target ? Number(target) : null);
       }}
     >
-      <p className="text-[13px] font-semibold text-ink">Vad sparar du till?</p>
       <input
         autoFocus
         value={purpose}
         onChange={(e) => setPurpose(e.target.value)}
-        placeholder="T.ex. Resa till Åre"
+        placeholder="Vad sparar du till?"
         className="rounded-xl bg-cream-dim px-3 py-2.5 text-[13px] text-ink outline-none placeholder:text-slate-soft"
       />
       <input
         value={target}
         onChange={(e) => setTarget(e.target.value.replace(/\D/g, ""))}
-        placeholder="Målbelopp (valfritt)"
+        placeholder="Mål (valfritt)"
         inputMode="numeric"
         className="rounded-xl bg-cream-dim px-3 py-2.5 text-[13px] text-ink outline-none placeholder:text-slate-soft"
       />
@@ -219,15 +201,15 @@ function NewChestForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-xl bg-cream-dim py-2.5 text-[13px] font-medium text-slate"
+          className="flex flex-1 items-center justify-center rounded-xl bg-cream-dim py-2.5 text-slate-soft"
         >
-          Avbryt
+          <X className="h-4 w-4" strokeWidth={2} />
         </button>
         <button
           type="submit"
-          className="flex-1 rounded-xl bg-forest py-2.5 text-[13px] font-semibold text-paper"
+          className="flex flex-1 items-center justify-center rounded-xl bg-blush py-2.5 text-forest"
         >
-          Skapa
+          <Check className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
     </motion.form>

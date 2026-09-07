@@ -6,6 +6,7 @@ import {
   Ticket,
   type LucideIcon,
 } from "lucide-react";
+import type { CSSProperties } from "react";
 
 const registry: Record<string, LucideIcon> = {
   Home,
@@ -19,11 +20,13 @@ export function CategoryIcon({
   name,
   className,
   strokeWidth = 1.75,
+  style,
 }: {
   name: string;
   className?: string;
   strokeWidth?: number;
+  style?: CSSProperties;
 }) {
   const Cmp = registry[name] ?? Home;
-  return <Cmp className={className} strokeWidth={strokeWidth} />;
+  return <Cmp className={className} strokeWidth={strokeWidth} style={style} />;
 }

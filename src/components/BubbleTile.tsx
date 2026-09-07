@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import type { Category } from "../data/types";
 import { colorSets } from "../lib/colors";
 import { formatSEK } from "../lib/money";
@@ -9,20 +10,19 @@ export function BubbleTile({
   amount,
   size,
   index,
-  onClick,
 }: {
   category: Category;
   amount: number;
   size: number;
   index: number;
-  onClick?: () => void;
 }) {
+  const [revealed, setRevealed] = useState(false);
   const colors = colorSets[category.color];
   const isFixed = category.group === "fixed";
 
   return (
     <motion.button
-      onClick={onClick}
+      onClick={() => setRevealed((r) => !r)}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{
@@ -31,26 +31,36 @@ export function BubbleTile({
         damping: 18,
         delay: index * 0.05,
       }}
-      whileTap={{ scale: 0.92 }}
-      whileHover={{ scale: 1.04, y: -2 }}
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: colors.hex,
-      }}
-      className={`flex flex-col items-center justify-center gap-1 text-paper shadow-soft ${
-        isFixed ? "rounded-2xl" : "rounded-full"
-      }`}
+      whileTap={{ scale: 0.9 }}
+      whileHover={{ scale: 1.05, y: -2 }}
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
     >
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
-        <CategoryIcon name={category.icon} className="h-4 w-4" />
-      </span>
-      <span className="text-[10px] font-medium leading-none opacity-90">
-        {category.name}
-      </span>
-      <span className="text-[13px] font-semibold leading-none">
-        {formatSEK(amount)}
-      </span>
+      <AnimatePresence>
+        {revealed && (
+          <motion.span
+            initial={{ opacity: 0, y: 4, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 420, damping: 24 }}
+            className="absolute -top-8 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-cream shadow-pop"
+          >
+            {formatSEK(amount)}
+          </motion.span>
+        )}
+      </AnimatePresence>
+      <div
+        style={{ width: size, height: size, backgroundColor: colors.hex }}
+        className={`flex items-center justify-center shadow-soft ${
+          isFixed ? "rounded-2xl" : "rounded-full"
+        }`}
+      >
+        <CategoryIcon
+          name={category.icon}
+          className="h-[38%] w-[38%]"
+          style={{ color: colors.onHex }}
+        />
+      </div>
     </motion.button>
   );
 }

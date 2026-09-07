@@ -12,18 +12,24 @@
   --color-slate-soft: #939c9a;
   --color-blush: #c8b2be;
   --color-blush-soft: #dccbd4;
-  --color-rose: #8a5f70;
 
-  --color-cream: #f7f3ee;
-  --color-cream-dim: #efe8df;
-  --color-paper: #fffdfa;
-  --color-ink: #23241f;
+  /* Bright tints, used only where a status needs to read against the dark ground */
+  --color-forest-bright: #93c17e;
+  --color-plum-bright: #bcaed4;
+  --color-rose: #e2a3b7;
+
+  /* Dark-mode surfaces. Names kept from the original light pass so every
+     existing bg-paper / bg-cream-dim / text-ink call site repaints for free. */
+  --color-cream: #0e1613; /* app background: near-black green-blue */
+  --color-cream-dim: #16211d; /* secondary surface: nav bar, chips */
+  --color-paper: #1c2924; /* card surface */
+  --color-ink: #f2efe8; /* primary text, warm off-white */
 
   --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-  --shadow-soft: 0 1px 2px rgba(35, 36, 31, 0.04), 0 8px 24px -8px rgba(35, 36, 31, 0.12);
-  --shadow-pop: 0 2px 6px rgba(35, 36, 31, 0.08), 0 16px 32px -12px rgba(35, 36, 31, 0.22);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 2px 8px rgba(0, 0, 0, 0.3), 0 20px 40px -14px rgba(0, 0, 0, 0.6);
 }
 
 html,
@@ -34,11 +40,12 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-cream-dim);
+  background: var(--color-cream);
   font-family: var(--font-sans);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  color-scheme: dark;
 }
 
 * {
