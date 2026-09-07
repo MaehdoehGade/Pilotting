@@ -3,23 +3,32 @@ import { Check, Lock, Plus, Sparkles, Unlock, X } from "lucide-react";
 import { useState } from "react";
 import type { SavingsChest } from "../data/types";
 import { formatSEK } from "../lib/money";
+import { scaleSizes } from "../lib/scale";
 
-const QUICK_AMOUNTS = [100, 500, 1000];
-const QUICK_SIZES = [30, 42, 54];
+/** Quick-add options as "days of your own spending, skipped" — 1 / 3 / 7 —
+ * so the three sizes are an honest ratio (1x, 3x, 7x), not arbitrary. */
+const DAY_MULTIPLES = [1, 3, 7];
 
 export function Chest({
   chests,
+  avgDailySpend,
   onAddMoney,
   onToggleLock,
   onCreateChest,
 }: {
   chests: SavingsChest[];
+  avgDailySpend: number;
   onAddMoney: (chestId: string, amount: number) => void;
   onToggleLock: (chestId: string, lockIndex: 0 | 1) => void;
   onCreateChest: (purpose: string, target: number | null) => void;
 }) {
   const [creating, setCreating] = useState(false);
   const total = chests.reduce((s, c) => s + c.balance, 0);
+
+  const quickAmounts = DAY_MULTIPLES.map(
+    (d) => Math.max(50, Math.round((avgDailySpend * d) / 50) * 50),
+  );
+  const quickSizes = scaleSizes(quickAmounts, 26, 88);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto no-scrollbar">
@@ -32,6 +41,8 @@ export function Chest({
           <ChestCard
             key={chest.id}
             chest={chest}
+            quickAmounts={quickAmounts}
+            quickSizes={quickSizes}
             onAddMoney={(amount) => onAddMoney(chest.id, amount)}
             onToggleLock={(i) => onToggleLock(chest.id, i)}
           />
@@ -61,10 +72,14 @@ export function Chest({
 
 function ChestCard({
   chest,
+  quickAmounts,
+  quickSizes,
   onAddMoney,
   onToggleLock,
 }: {
   chest: SavingsChest;
+  quickAmounts: number[];
+  quickSizes: number[];
   onAddMoney: (amount: number) => void;
   onToggleLock: (index: 0 | 1) => void;
 }) {
@@ -142,17 +157,21 @@ function ChestCard({
         })}
       </div>
 
-      <div className="mt-2 flex h-16 items-end justify-center gap-4">
-        {QUICK_AMOUNTS.map((amount, i) => (
+      <div
+        className="mt-3 flex items-end justify-center gap-4"
+        style={{ height: Math.max(...quickSizes) + 8 }}
+      >
+        {quickAmounts.map((amount, i) => (
           <button
             key={amount}
             onClick={() => onAddMoney(amount)}
-            className="flex items-end justify-center pb-1"
+            className="flex flex-1 items-end justify-center"
           >
             <motion.div
               whileTap={{ scale: 0.85 }}
-              style={{ width: QUICK_SIZES[i], height: QUICK_SIZES[i] }}
-              className="rounded-full bg-blush/70"
+              whileHover={{ scale: 1.05 }}
+              style={{ width: quickSizes[i], height: quickSizes[i] }}
+              className="rounded-full bg-blush/80"
             />
           </button>
         ))}

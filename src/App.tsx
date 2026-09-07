@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useMockAdapter } from "./data/adapter";
 import type { SavingsChest } from "./data/types";
+import { getSpentSoFar } from "./lib/finance";
 import { BottomNav, type TabKey } from "./components/BottomNav";
 import { Overview } from "./screens/Overview";
 import { Simulate } from "./screens/Simulate";
@@ -18,6 +19,8 @@ export default function App() {
     () => chests.reduce((sum, c) => sum + c.balance, 0),
     [chests],
   );
+
+  const avgDailySpend = getSpentSoFar(adapter) / adapter.monthPlan.today;
 
   function showToast(message: string) {
     setToast(message);
@@ -110,6 +113,7 @@ export default function App() {
               {tab === "chest" && (
                 <Chest
                   chests={chests}
+                  avgDailySpend={avgDailySpend}
                   onAddMoney={addMoney}
                   onToggleLock={toggleLock}
                   onCreateChest={createChest}
