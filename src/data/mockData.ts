@@ -99,9 +99,9 @@ export const transactions: Transaction[] = [
 
 /** Fixed obligations still due before month end — known in advance, not yet charged. */
 export const scheduledOutflows: Transaction[] = [
-  { id: "s1", date: day(20), merchant: "Comfort Finans", amount: -1200, categoryId: "rakningar" },
-  { id: "s2", date: day(24), merchant: "CarFin billån", amount: -2450, categoryId: "rakningar" },
-  { id: "s3", date: day(27), merchant: "ShopNow delbetalning", amount: -400, categoryId: "rakningar" },
+  { id: "s1", date: day(20), merchant: "Comfort Finans", amount: -1200, categoryId: "rakningar", loanId: "l1" },
+  { id: "s2", date: day(24), merchant: "CarFin billån", amount: -2450, categoryId: "rakningar", loanId: "l2" },
+  { id: "s3", date: day(27), merchant: "ShopNow delbetalning", amount: -400, categoryId: "rakningar", loanId: "l3" },
   { id: "s4", date: day(28), merchant: "Vattenfall", amount: -540, categoryId: "rakningar" },
 ];
 

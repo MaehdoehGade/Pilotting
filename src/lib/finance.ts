@@ -1,5 +1,5 @@
 import type { AnydayAdapter } from "../data/adapter";
-import type { Category } from "../data/types";
+import type { Category, ExternalLoan } from "../data/types";
 
 export interface CategorySpend {
   category: Category;
@@ -108,5 +108,36 @@ export function computeProjection(
     projectedTotalOut,
     projectedEndBalance: income - projectedTotalOut,
     totalSavedByCuts,
+  };
+}
+
+export interface MergeOffer {
+  totalBalance: number;
+  currentMonthlyTotal: number;
+  currentBlendedRate: number;
+  newRate: number;
+  newMonthlyPayment: number;
+  monthlySavings: number;
+}
+
+/** Illustrative consolidation offer: same total balance, one loan, a lower
+ * blended rate over a 5-year term — the standard amortization formula. */
+export function computeMergeOffer(loans: ExternalLoan[], newRate = 0.089, termMonths = 60): MergeOffer {
+  const totalBalance = loans.reduce((s, l) => s + l.balance, 0);
+  const currentMonthlyTotal = loans.reduce((s, l) => s + l.monthlyPayment, 0);
+  const currentBlendedRate =
+    loans.reduce((s, l) => s + l.balance * l.interestRate, 0) / totalBalance / 100;
+
+  const r = newRate / 12;
+  const factor = Math.pow(1 + r, termMonths);
+  const newMonthlyPayment = (totalBalance * r * factor) / (factor - 1);
+
+  return {
+    totalBalance,
+    currentMonthlyTotal,
+    currentBlendedRate,
+    newRate,
+    newMonthlyPayment,
+    monthlySavings: currentMonthlyTotal - newMonthlyPayment,
   };
 }

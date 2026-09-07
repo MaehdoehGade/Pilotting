@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMockAdapter } from "./data/adapter";
 import type { SavingsChest } from "./data/types";
 import { getSpentSoFar } from "./lib/finance";
 import { BottomNav, type TabKey } from "./components/BottomNav";
+import { CategoryDetailSheet } from "./components/CategoryDetailSheet";
+import { MergeLoansSheet } from "./components/MergeLoansSheet";
 import { Overview } from "./screens/Overview";
 import { Simulate } from "./screens/Simulate";
 import { Chest } from "./screens/Chest";
@@ -25,6 +26,8 @@ export default function App() {
   const [cutSteps, setCutSteps] = useState<Record<string, number>>({});
   const [toast, setToast] = useState<string | null>(null);
   const [showFigures, setShowFigures] = useState(loadShowFigures);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [mergeOpen, setMergeOpen] = useState(false);
 
   function toggleFigures() {
     setShowFigures((prev) => {
@@ -121,6 +124,8 @@ export default function App() {
                   adapter={adapter}
                   chestTotal={chestTotal}
                   onOpenChest={() => setTab("chest")}
+                  onSelectCategory={setSelectedCategoryId}
+                  onOpenMerge={() => setMergeOpen(true)}
                   showFigures={showFigures}
                 />
               )}
@@ -132,6 +137,7 @@ export default function App() {
                     setCutSteps((prev) => ({ ...prev, [id]: step }))
                   }
                   onMoveToChest={moveToChest}
+                  onSelectCategory={setSelectedCategoryId}
                   showFigures={showFigures}
                 />
               )}
@@ -151,14 +157,29 @@ export default function App() {
           <button
             onClick={toggleFigures}
             aria-label={showFigures ? "Dölj siffror" : "Visa siffror"}
-            className="absolute left-5 top-8 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 backdrop-blur"
+            className="absolute left-5 top-8 z-20 flex h-9 items-center justify-center rounded-full bg-white/10 px-2.5 backdrop-blur"
           >
-            {showFigures ? (
-              <Eye className="h-4 w-4 text-blush" strokeWidth={1.75} />
-            ) : (
-              <EyeOff className="h-4 w-4 text-slate-soft" strokeWidth={1.75} />
-            )}
+            <span
+              className={`text-[11px] font-bold tracking-tight ${
+                showFigures ? "text-blush" : "text-slate-soft line-through decoration-2"
+              }`}
+            >
+              123
+            </span>
           </button>
+
+          <CategoryDetailSheet
+            adapter={adapter}
+            categoryId={selectedCategoryId}
+            onClose={() => setSelectedCategoryId(null)}
+          />
+
+          <MergeLoansSheet
+            loans={adapter.externalLoans}
+            open={mergeOpen}
+            onClose={() => setMergeOpen(false)}
+            onMoveSavingsToChest={moveToChest}
+          />
 
           <AnimatePresence>
             {toast && (
@@ -167,7 +188,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 24 }}
-                className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-blush px-4 py-2 text-[12px] font-medium text-forest shadow-pop"
+                className="pointer-events-none absolute bottom-3 left-1/2 z-50 -translate-x-1/2 rounded-full bg-blush px-4 py-2 text-[12px] font-medium text-forest shadow-pop"
               >
                 {toast}
               </motion.div>

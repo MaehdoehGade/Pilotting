@@ -16,6 +16,8 @@ export interface Transaction {
   merchant: string;
   amount: number; // negative = outflow, positive = inflow
   categoryId: string;
+  /** Set when this line is a payment on an ExternalLoan — locked, never cuttable. */
+  loanId?: string;
 }
 
 export interface ExternalLoan {

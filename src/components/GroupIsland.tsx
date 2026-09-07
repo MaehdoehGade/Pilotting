@@ -7,10 +7,12 @@ export function GroupIsland({
   group,
   items,
   showFigures,
+  onSelectCategory,
 }: {
   group: SpendGroup;
   items: { category: Category; amount: number }[];
   showFigures: boolean;
+  onSelectCategory: (categoryId: string) => void;
 }) {
   const sizes = scaleSizes(
     items.map((i) => i.amount),
@@ -37,6 +39,7 @@ export function GroupIsland({
             size={sizes[i]}
             index={i}
             showFigures={showFigures}
+            onSelect={() => onSelectCategory(category.id)}
           />
         ))}
       </div>

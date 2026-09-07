@@ -4,6 +4,7 @@ export type ColorKey = Category["color"];
 
 interface ColorSet {
   hex: string;
+  /** Lighter tint of the same hue — hover states, residual/secondary fills. */
   hexSoft: string;
   /** Text/icon color to place on top of `hex` so it stays readable. */
   onHex: string;
@@ -11,30 +12,33 @@ interface ColorSet {
 
 export const colorSets: Record<ColorKey, ColorSet> = {
   forest: {
-    hex: "#384a2c",
-    hexSoft: "#4a5f3c",
+    hex: "#4f7a3a",
+    hexSoft: "#6f9c58",
     onHex: "#f2efe8",
   },
   navy: {
-    hex: "#3a486d",
-    hexSoft: "#56628a",
+    hex: "#3f5fa8",
+    hexSoft: "#6884c9",
     onHex: "#f2efe8",
   },
   plum: {
-    hex: "#706688",
-    hexSoft: "#8d81a3",
+    hex: "#8f6fc4",
+    hexSoft: "#af97d8",
     onHex: "#f2efe8",
   },
   slate: {
-    hex: "#727b7a",
-    hexSoft: "#939c9a",
-    onHex: "#12190f",
+    hex: "#4f8f88",
+    hexSoft: "#74b0a9",
+    onHex: "#0d1613",
   },
   blush: {
-    hex: "#c8b2be",
-    hexSoft: "#dccbd4",
-    onHex: "#12190f",
+    hex: "#e08fb0",
+    hexSoft: "#eab3c8",
+    onHex: "#2c1420",
   },
 };
 
-export const accentHex = "#c8b2be";
+/** Reserved for interactive/actionable moments (loan merge CTA, live nudges) —
+ * never used for category identity, so it always reads as "do something here". */
+export const goldAccent = "#e8a94e";
+export const goldAccentSoft = "#f0c37e";

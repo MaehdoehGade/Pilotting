@@ -19,12 +19,14 @@ export function Simulate({
   cutSteps,
   onCutStepChange,
   onMoveToChest,
+  onSelectCategory,
   showFigures,
 }: {
   adapter: AnydayAdapter;
   cutSteps: Record<string, number>;
   onCutStepChange: (categoryId: string, step: number) => void;
   onMoveToChest: (amount: number) => void;
+  onSelectCategory: (categoryId: string) => void;
   showFigures: boolean;
 }) {
   const flowyCategories = adapter.categories.filter((c) => c.group === "flowy");
@@ -111,6 +113,7 @@ export function Simulate({
                 size={56}
                 index={0}
                 showFigures={showFigures}
+                onSelect={() => onSelectCategory(category.id)}
               />
               <div className="flex-1">
                 <SizePicker
@@ -126,7 +129,12 @@ export function Simulate({
           );
         })}
 
-        <GroupIsland group="fixed" items={fixedProjected} showFigures={showFigures} />
+        <GroupIsland
+          group="fixed"
+          items={fixedProjected}
+          showFigures={showFigures}
+          onSelectCategory={onSelectCategory}
+        />
       </div>
       <div className="h-2" />
     </div>

@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
 import type { Category } from "../data/types";
 import { colorSets } from "../lib/colors";
 import { formatSEK } from "../lib/money";
@@ -11,21 +10,21 @@ export function BubbleTile({
   size,
   index,
   showFigures,
+  onSelect,
 }: {
   category: Category;
   amount: number;
   size: number;
   index: number;
   showFigures: boolean;
+  onSelect: () => void;
 }) {
-  const [revealed, setRevealed] = useState(false);
-  const labelVisible = showFigures || revealed;
   const colors = colorSets[category.color];
   const isFixed = category.group === "fixed";
 
   return (
     <motion.button
-      onClick={() => !showFigures && setRevealed((r) => !r)}
+      onClick={onSelect}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{
@@ -40,7 +39,7 @@ export function BubbleTile({
       style={{ width: size, height: size }}
     >
       <AnimatePresence>
-        {labelVisible && (
+        {showFigures && (
           <motion.span
             initial={{ opacity: 0, y: 4, scale: 0.85 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

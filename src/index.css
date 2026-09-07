@@ -18,6 +18,10 @@
   --color-plum-bright: #bcaed4;
   --color-rose: #e2a3b7;
 
+  /* Reserved for interactive/actionable moments — never category identity */
+  --color-gold: #e8a94e;
+  --color-gold-soft: #f0c37e;
+
   /* Dark-mode surfaces. Names kept from the original light pass so every
      existing bg-paper / bg-cream-dim / text-ink call site repaints for free. */
   --color-cream: #0e1613; /* app background: near-black green-blue */
