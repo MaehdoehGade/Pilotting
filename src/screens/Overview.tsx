@@ -43,7 +43,7 @@ export function Overview({
       <div className="relative">
         <NatureBackdrop className="h-40 w-full" />
         <div className="absolute inset-x-0 top-0 px-5 pt-4">
-          <MonthProgress fraction={today / daysInMonth} />
+          <MonthProgress today={today} daysInMonth={daysInMonth} light />
         </div>
         <button
           onClick={onOpenChest}

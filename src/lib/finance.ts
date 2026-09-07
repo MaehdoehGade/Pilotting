@@ -36,16 +36,58 @@ export function scheduledByCategory(
     .reduce((sum, t) => sum + t.amount, 0);
 }
 
-/** cuts: categoryId -> fraction (0..1) of the *remaining, projectable* flowy spend to cut. */
-export type CutMap = Record<string, number>;
+/**
+ * One future, not-yet-happened purchase the simulator expects in this
+ * category, extrapolated from this month's own pace and typical amounts —
+ * e.g. "you've been to the café 5 times, at this rate expect ~4 more."
+ * Each one is what the Simulate screen lets you individually slash.
+ */
+export interface ProjectedInstance {
+  id: string;
+  merchant: string;
+  amount: number;
+  dayOffset: number; // days from today this purchase is expected
+}
+
+export function getProjectedInstances(
+  adapter: AnydayAdapter,
+  categoryId: string,
+): ProjectedInstance[] {
+  const { today, daysInMonth } = adapter.monthPlan;
+  const daysElapsed = Math.max(today, 1);
+  const daysRemaining = Math.max(daysInMonth - today, 0);
+  const past = adapter.transactions.filter(
+    (t) => t.categoryId === categoryId && t.amount < 0,
+  );
+  if (past.length === 0 || daysRemaining === 0) return [];
+
+  const pace = past.length / daysElapsed;
+  const count = Math.round(pace * daysRemaining);
+
+  return Array.from({ length: count }, (_, i) => {
+    const source = past[i % past.length];
+    const dayOffset = Math.max(1, Math.round(((i + 1) / count) * daysRemaining));
+    return {
+      id: `${categoryId}-proj-${i}`,
+      merchant: source.merchant,
+      amount: -source.amount,
+      dayOffset,
+    };
+  });
+}
+
+/** categoryId -> set of projected instance ids the user has committed to skipping. */
+export type SlashMap = Record<string, Set<string>>;
 
 export interface CategoryProjection {
   category: Category;
   spentSoFar: number;
-  dailyAverage: number;
+  instances: ProjectedInstance[];
+  keptInstances: ProjectedInstance[];
+  slashedInstances: ProjectedInstance[];
   projectedRemaining: number;
   projectedTotal: number;
-  savedByCut: number;
+  savedBySlash: number;
 }
 
 export interface MonthProjection {
@@ -56,12 +98,12 @@ export interface MonthProjection {
   spentSoFar: number;
   projectedTotalOut: number;
   projectedEndBalance: number;
-  totalSavedByCuts: number;
+  totalSavedBySlash: number;
 }
 
 export function computeProjection(
   adapter: AnydayAdapter,
-  cuts: CutMap = {},
+  slashed: SlashMap = {},
 ): MonthProjection {
   const { today, daysInMonth } = adapter.monthPlan;
   const daysElapsed = Math.max(today, 1);
@@ -75,29 +117,37 @@ export function computeProjection(
       return {
         category,
         spentSoFar,
-        dailyAverage: 0,
+        instances: [],
+        keptInstances: [],
+        slashedInstances: [],
         projectedRemaining: scheduled,
         projectedTotal: spentSoFar + scheduled,
-        savedByCut: 0,
+        savedBySlash: 0,
       };
     }
-    const dailyAverage = spentSoFar / daysElapsed;
-    const uncutRemaining = dailyAverage * daysRemaining;
-    const cutPct = Math.min(Math.max(cuts[category.id] ?? 0, 0), 1);
-    const projectedRemaining = uncutRemaining * (1 - cutPct);
+
+    const instances = getProjectedInstances(adapter, category.id);
+    const slashedIds = slashed[category.id] ?? new Set<string>();
+    const keptInstances = instances.filter((i) => !slashedIds.has(i.id));
+    const slashedInstances = instances.filter((i) => slashedIds.has(i.id));
+    const projectedRemaining = keptInstances.reduce((s, i) => s + i.amount, 0);
+    const savedBySlash = slashedInstances.reduce((s, i) => s + i.amount, 0);
+
     return {
       category,
       spentSoFar,
-      dailyAverage,
+      instances,
+      keptInstances,
+      slashedInstances,
       projectedRemaining,
       projectedTotal: spentSoFar + projectedRemaining,
-      savedByCut: uncutRemaining * cutPct,
+      savedBySlash,
     };
   });
 
   const spentSoFar = getSpentSoFar(adapter);
   const projectedTotalOut = perCategory.reduce((sum, c) => sum + c.projectedTotal, 0);
-  const totalSavedByCuts = perCategory.reduce((sum, c) => sum + c.savedByCut, 0);
+  const totalSavedBySlash = perCategory.reduce((sum, c) => sum + c.savedBySlash, 0);
 
   return {
     perCategory,
@@ -107,7 +157,7 @@ export function computeProjection(
     spentSoFar,
     projectedTotalOut,
     projectedEndBalance: income - projectedTotalOut,
-    totalSavedByCuts,
+    totalSavedBySlash,
   };
 }
 

@@ -30,7 +30,7 @@ export function BottomNav({
             {isActive && (
               <motion.div
                 layoutId="nav-pill"
-                className="absolute h-10 w-14 rounded-2xl bg-blush/15"
+                className="absolute h-12 w-16 rounded-2xl bg-blush/15"
                 transition={{ type: "spring", stiffness: 500, damping: 32 }}
               />
             )}
@@ -46,6 +46,13 @@ export function BottomNav({
                 color={isActive ? "#c8b2be" : "#5b6660"}
               />
             </motion.div>
+            <span
+              className={`relative z-10 mt-0.5 text-[10px] font-medium tracking-tight ${
+                isActive ? "text-blush" : "text-slate-soft"
+              }`}
+            >
+              {label}
+            </span>
           </button>
         );
       })}

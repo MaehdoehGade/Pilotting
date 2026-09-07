@@ -21,6 +21,11 @@ export function NatureBackdrop({ className }: { className?: string }) {
           <stop offset="0%" stopColor="#141d2b" />
           <stop offset="100%" stopColor="#0e1613" />
         </linearGradient>
+        <radialGradient id="moonGlow">
+          <stop offset="0%" stopColor="#f2efe8" stopOpacity="0.55" />
+          <stop offset="55%" stopColor="#dccbd4" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#dccbd4" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
       <rect width="430" height="220" fill="url(#sky)" />
@@ -35,8 +40,10 @@ export function NatureBackdrop({ className }: { className?: string }) {
         ))}
       </g>
 
-      {/* moon */}
-      <circle cx="343" cy="94" r="22" fill="#dccbd4" opacity="0.9" />
+      {/* moon — soft ambient glow, deliberately not button-shaped, kept away
+          from the real chest button in the top-right corner */}
+      <circle cx="175" cy="98" r="46" fill="url(#moonGlow)" />
+      <circle cx="175" cy="98" r="14" fill="#dccbd4" opacity="0.5" />
 
       {/* far hills */}
       <path

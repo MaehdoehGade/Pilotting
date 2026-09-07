@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useMockAdapter } from "./data/adapter";
 import type { SavingsChest } from "./data/types";
-import { getSpentSoFar } from "./lib/finance";
+import { getSpentSoFar, type SlashMap } from "./lib/finance";
 import { BottomNav, type TabKey } from "./components/BottomNav";
 import { CategoryDetailSheet } from "./components/CategoryDetailSheet";
 import { MergeLoansSheet } from "./components/MergeLoansSheet";
@@ -23,7 +23,7 @@ export default function App() {
   const adapter = useMockAdapter();
   const [tab, setTab] = useState<TabKey>("overview");
   const [chests, setChests] = useState<SavingsChest[]>(adapter.savingsChests);
-  const [cutSteps, setCutSteps] = useState<Record<string, number>>({});
+  const [slashed, setSlashed] = useState<SlashMap>({});
   const [toast, setToast] = useState<string | null>(null);
   const [showFigures, setShowFigures] = useState(loadShowFigures);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -70,8 +70,20 @@ export default function App() {
       }
       return prev.map((c, i) => (i === 0 ? { ...c, balance: c.balance + amount } : c));
     });
-    setCutSteps({});
+    setSlashed({});
     showToast(`+${Math.round(amount)} kr`);
+  }
+
+  function toggleSlash(categoryId: string, instanceId: string) {
+    setSlashed((prev) => {
+      const current = new Set(prev[categoryId] ?? []);
+      if (current.has(instanceId)) {
+        current.delete(instanceId);
+      } else {
+        current.add(instanceId);
+      }
+      return { ...prev, [categoryId]: current };
+    });
   }
 
   function addMoney(chestId: string, amount: number) {
@@ -132,10 +144,8 @@ export default function App() {
               {tab === "simulate" && (
                 <Simulate
                   adapter={adapter}
-                  cutSteps={cutSteps}
-                  onCutStepChange={(id, step) =>
-                    setCutSteps((prev) => ({ ...prev, [id]: step }))
-                  }
+                  slashed={slashed}
+                  onToggleSlash={toggleSlash}
                   onMoveToChest={moveToChest}
                   onSelectCategory={setSelectedCategoryId}
                   showFigures={showFigures}
