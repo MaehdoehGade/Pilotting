@@ -140,7 +140,6 @@ export default function App() {
                   chestTotal={chestTotal}
                   onOpenChest={() => setTab("chest")}
                   onSelectGroup={setOpenGroup}
-                  onOpenMerge={() => setMergeOpen(true)}
                   showFigures={showFigures}
                 />
               )}
@@ -181,6 +180,10 @@ export default function App() {
             onSelectCategory={(id) => {
               setOpenGroup(null);
               setSelectedCategoryId(id);
+            }}
+            onOpenMerge={() => {
+              setOpenGroup(null);
+              setMergeOpen(true);
             }}
           />
 

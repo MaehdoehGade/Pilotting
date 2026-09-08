@@ -4,7 +4,6 @@ import type { SpendGroup } from "../data/types";
 import { getIncome, scheduledByCategory, spendByCategory } from "../lib/finance";
 import { NatureBackdrop } from "../components/NatureBackdrop";
 import { MonthBox } from "../components/MonthBox";
-import { LoanRow } from "../components/LoanRow";
 import { MonthProgress } from "../components/MonthProgress";
 
 export function Overview({
@@ -12,14 +11,12 @@ export function Overview({
   chestTotal,
   onOpenChest,
   onSelectGroup,
-  onOpenMerge,
   showFigures,
 }: {
   adapter: AnydayAdapter;
   chestTotal: number;
   onOpenChest: () => void;
   onSelectGroup: (group: SpendGroup) => void;
-  onOpenMerge: () => void;
   showFigures: boolean;
 }) {
   const income = getIncome(adapter);
@@ -61,10 +58,6 @@ export function Overview({
             onSelectGroup={onSelectGroup}
             onSelectSaved={onOpenChest}
           />
-        </div>
-
-        <div className="rounded-3xl bg-paper p-4 shadow-soft">
-          <LoanRow loans={adapter.externalLoans} showFigures={showFigures} onOpen={onOpenMerge} />
         </div>
       </div>
       <div className="h-2" />

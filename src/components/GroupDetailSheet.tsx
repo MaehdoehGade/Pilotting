@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Lock, Waves, X } from "lucide-react";
+import { Landmark, Lock, Waves, X } from "lucide-react";
 import type { AnydayAdapter } from "../data/adapter";
 import type { SpendGroup } from "../data/types";
 import { colorSets } from "../lib/colors";
@@ -12,11 +12,13 @@ export function GroupDetailSheet({
   group,
   onClose,
   onSelectCategory,
+  onOpenMerge,
 }: {
   adapter: AnydayAdapter;
   group: SpendGroup | null;
   onClose: () => void;
   onSelectCategory: (categoryId: string) => void;
+  onOpenMerge: () => void;
 }) {
   // Fixed categories add their still-to-come scheduled amount so this total
   // matches the committed figure shown on the box (Flowy has none, so this
@@ -91,6 +93,26 @@ export function GroupDetailSheet({
                   );
                 })}
               </div>
+
+              {group === "fixed" && adapter.externalLoans.length > 0 && (
+                <motion.button
+                  onClick={onOpenMerge}
+                  whileTap={{ scale: 0.97 }}
+                  className="relative mt-4 flex w-full items-center gap-3 overflow-hidden rounded-2xl bg-gold/15 px-3 py-3 text-left"
+                >
+                  <motion.span
+                    className="absolute inset-0 bg-gold/20"
+                    animate={{ opacity: [0.3, 0, 0.3] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold">
+                    <Landmark className="h-4 w-4 text-forest" strokeWidth={1.75} />
+                  </span>
+                  <span className="relative text-[12.5px] font-medium text-ink">
+                    {adapter.externalLoans.length} lån hos andra — slå ihop till en lägre summa?
+                  </span>
+                </motion.button>
+              )}
             </div>
           </motion.div>
         </>
