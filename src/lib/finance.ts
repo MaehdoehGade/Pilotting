@@ -1,4 +1,4 @@
-import type { AnydayAdapter } from "../data/adapter";
+import type { EverydayAdapter } from "../data/adapter";
 import type { Category, ExternalLoan } from "../data/types";
 
 export interface CategorySpend {
@@ -6,19 +6,19 @@ export interface CategorySpend {
   spentSoFar: number;
 }
 
-export function getIncome(adapter: AnydayAdapter): number {
+export function getIncome(adapter: EverydayAdapter): number {
   return adapter.transactions
     .filter((t) => t.amount > 0)
     .reduce((sum, t) => sum + t.amount, 0);
 }
 
-export function getSpentSoFar(adapter: AnydayAdapter): number {
+export function getSpentSoFar(adapter: EverydayAdapter): number {
   return -adapter.transactions
     .filter((t) => t.amount < 0)
     .reduce((sum, t) => sum + t.amount, 0);
 }
 
-export function spendByCategory(adapter: AnydayAdapter): CategorySpend[] {
+export function spendByCategory(adapter: EverydayAdapter): CategorySpend[] {
   return adapter.categories.map((category) => {
     const spentSoFar = -adapter.transactions
       .filter((t) => t.categoryId === category.id && t.amount < 0)
@@ -28,7 +28,7 @@ export function spendByCategory(adapter: AnydayAdapter): CategorySpend[] {
 }
 
 export function scheduledByCategory(
-  adapter: AnydayAdapter,
+  adapter: EverydayAdapter,
   categoryId: string,
 ): number {
   return -adapter.scheduledOutflows
@@ -50,7 +50,7 @@ export interface ProjectedInstance {
 }
 
 export function getProjectedInstances(
-  adapter: AnydayAdapter,
+  adapter: EverydayAdapter,
   categoryId: string,
 ): ProjectedInstance[] {
   const { today, daysInMonth } = adapter.monthPlan;
@@ -102,7 +102,7 @@ export interface MonthProjection {
 }
 
 export function computeProjection(
-  adapter: AnydayAdapter,
+  adapter: EverydayAdapter,
   slashed: SlashMap = {},
 ): MonthProjection {
   const { today, daysInMonth } = adapter.monthPlan;

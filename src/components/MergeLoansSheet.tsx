@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Landmark, PiggyBank, X } from "lucide-react";
 import type { ExternalLoan } from "../data/types";
+import { celebrate } from "../lib/celebrate";
 import { computeMergeOffer } from "../lib/finance";
 import { formatSEK } from "../lib/money";
 
@@ -34,23 +35,23 @@ export function MergeLoansSheet({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 340, damping: 32 }}
-            className="absolute inset-x-0 bottom-0 z-40 flex max-h-[85%] flex-col rounded-t-3xl bg-paper shadow-pop"
+            className="absolute inset-x-0 bottom-0 z-40 flex max-h-[85%] flex-col rounded-t-3xl bg-navy shadow-pop"
           >
-            <div className="flex items-center gap-3 border-b border-white/5 p-5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold">
-                <Landmark className="h-5 w-5 text-forest" strokeWidth={1.75} />
+            <div className="flex items-center gap-3 border-b border-line/40 p-5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-signal">
+                <Landmark className="h-5 w-5 text-ink" strokeWidth={1.75} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold text-ink">Slå ihop lånen</p>
-                <p className="text-[12px] text-slate-soft">
+                <p className="text-[14px] font-semibold text-paper">Slå ihop lånen</p>
+                <p className="font-mono text-[12px] text-aluminum">
                   {loans.length} lån · {formatSEK(offer.totalBalance)}
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream-dim"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy-2"
               >
-                <X className="h-4 w-4 text-slate-soft" strokeWidth={2} />
+                <X className="h-4 w-4 text-aluminum" strokeWidth={2} />
               </button>
             </div>
 
@@ -59,59 +60,60 @@ export function MergeLoansSheet({
                 {loans.map((loan) => (
                   <div
                     key={loan.id}
-                    className="flex items-center justify-between rounded-2xl bg-cream-dim px-3 py-2.5"
+                    className="flex items-center justify-between rounded-2xl bg-navy-2 px-3 py-2.5"
                   >
                     <div>
-                      <p className="text-[12.5px] font-medium text-ink">{loan.provider}</p>
-                      <p className="text-[11px] text-slate-soft">
+                      <p className="text-[12.5px] font-medium text-paper">{loan.provider}</p>
+                      <p className="text-[11px] text-aluminum">
                         {loan.label} · {loan.interestRate}%
                       </p>
                     </div>
-                    <p className="text-[12.5px] font-semibold text-ink">
+                    <p className="font-mono text-[12.5px] font-semibold text-paper">
                       {formatSEK(loan.balance)}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-5 flex items-end justify-center gap-10 rounded-2xl bg-cream-dim px-4 py-5">
+              <div className="mt-5 flex items-end justify-center gap-10 rounded-2xl bg-navy-2 px-4 py-5">
                 <div className="flex flex-col items-center gap-2">
                   <div
-                    className="w-10 rounded-t-lg bg-slate"
+                    className="w-10 rounded-t-lg bg-aluminum"
                     style={{ height: (offer.currentMonthlyTotal / maxPayment) * 96 }}
                   />
-                  <span className="text-[10px] text-slate-soft">Idag</span>
-                  <span className="text-[12px] font-semibold text-ink">
+                  <span className="text-[10px] text-aluminum">Idag</span>
+                  <span className="font-mono text-[12px] font-semibold text-paper">
                     {formatSEK(offer.currentMonthlyTotal)}
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <div
-                    className="w-10 rounded-t-lg bg-gold"
+                    className="w-10 rounded-t-lg bg-signal"
                     style={{ height: (offer.newMonthlyPayment / maxPayment) * 96 }}
                   />
-                  <span className="text-[10px] text-slate-soft">Ihopslaget</span>
-                  <span className="text-[12px] font-semibold text-ink">
+                  <span className="text-[10px] text-aluminum">Ihopslaget</span>
+                  <span className="font-mono text-[12px] font-semibold text-paper">
                     {formatSEK(offer.newMonthlyPayment)}
                   </span>
                 </div>
               </div>
-              <p className="mt-2 text-center text-[11px] text-slate-soft">
-                {(offer.currentBlendedRate * 100).toFixed(1)}% blandad ränta idag → {(offer.newRate * 100).toFixed(1)}% ·
+              <p className="mt-2 text-center text-[11px] text-aluminum">
+                {(offer.currentBlendedRate * 100).toFixed(1)}% blandad ränta idag, ner till {(offer.newRate * 100).toFixed(1)}% ·
                 5 års löptid
               </p>
 
               <motion.button
                 whileTap={{ scale: 0.96 }}
-                onClick={() => {
+                onClick={(e) => {
+                  celebrate(e.currentTarget);
                   onMoveSavingsToChest(Math.round(offer.monthlySavings));
                   onClose();
                 }}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-blush px-4 py-3 text-forest shadow-soft"
+                className="celebrate-anchor mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-signal px-4 py-3 text-ink shadow-soft"
               >
                 <PiggyBank className="h-4 w-4" strokeWidth={2} />
                 <span className="text-[13px] font-semibold">
-                  Flytta {formatSEK(offer.monthlySavings)}/mån till sparkistan
+                  Flytta <span className="font-mono">{formatSEK(offer.monthlySavings)}</span>/mån till sparkistan
                 </span>
               </motion.button>
             </div>

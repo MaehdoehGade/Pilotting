@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Landmark, Lock, Waves, X } from "lucide-react";
-import type { AnydayAdapter } from "../data/adapter";
+import type { EverydayAdapter } from "../data/adapter";
 import type { SpendGroup } from "../data/types";
 import { colorSets } from "../lib/colors";
 import { scheduledByCategory, spendByCategory } from "../lib/finance";
@@ -14,7 +14,7 @@ export function GroupDetailSheet({
   onSelectCategory,
   onOpenMerge,
 }: {
-  adapter: AnydayAdapter;
+  adapter: EverydayAdapter;
   group: SpendGroup | null;
   onClose: () => void;
   onSelectCategory: (categoryId: string) => void;
@@ -51,21 +51,21 @@ export function GroupDetailSheet({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 340, damping: 32 }}
-            className="absolute inset-x-0 bottom-0 z-40 flex max-h-[75%] flex-col rounded-t-3xl bg-paper shadow-pop"
+            className="absolute inset-x-0 bottom-0 z-40 flex max-h-[75%] flex-col rounded-t-3xl bg-navy shadow-pop"
           >
-            <div className="flex items-center gap-3 border-b border-white/5 p-5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream-dim">
-                <Icon className="h-5 w-5 text-slate-soft" strokeWidth={1.75} />
+            <div className="flex items-center gap-3 border-b border-line/40 p-5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-navy-2">
+                <Icon className="h-5 w-5 text-aluminum" strokeWidth={1.75} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold text-ink">{label}</p>
-                <p className="text-[12px] text-slate-soft">{formatSEK(total)}</p>
+                <p className="text-[14px] font-semibold text-paper">{label}</p>
+                <p className="font-mono text-[12px] text-aluminum">{formatSEK(total)}</p>
               </div>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream-dim"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy-2"
               >
-                <X className="h-4 w-4 text-slate-soft" strokeWidth={2} />
+                <X className="h-4 w-4 text-aluminum" strokeWidth={2} />
               </button>
             </div>
 
@@ -77,7 +77,7 @@ export function GroupDetailSheet({
                     <button
                       key={category.id}
                       onClick={() => onSelectCategory(category.id)}
-                      className="flex items-center justify-between rounded-2xl bg-cream-dim px-3 py-2.5"
+                      className="flex items-center justify-between rounded-2xl bg-navy-2 px-3 py-2.5"
                     >
                       <div className="flex items-center gap-2.5">
                         <span
@@ -86,9 +86,9 @@ export function GroupDetailSheet({
                         >
                           <CategoryIcon name={category.icon} className="h-4 w-4" style={{ color: colors.onHex }} />
                         </span>
-                        <p className="text-[12.5px] font-medium text-ink">{category.name}</p>
+                        <p className="text-[12.5px] font-medium text-paper">{category.name}</p>
                       </div>
-                      <p className="text-[12.5px] font-semibold text-ink">{formatSEK(amount)}</p>
+                      <p className="font-mono text-[12.5px] font-semibold text-paper">{formatSEK(amount)}</p>
                     </button>
                   );
                 })}
@@ -98,18 +98,18 @@ export function GroupDetailSheet({
                 <motion.button
                   onClick={onOpenMerge}
                   whileTap={{ scale: 0.97 }}
-                  className="relative mt-4 flex w-full items-center gap-3 overflow-hidden rounded-2xl bg-gold/15 px-3 py-3 text-left"
+                  className="relative mt-4 flex w-full items-center gap-3 overflow-hidden rounded-2xl bg-signal/15 px-3 py-3 text-left"
                 >
                   <motion.span
-                    className="absolute inset-0 bg-gold/20"
+                    className="absolute inset-0 bg-signal/20"
                     animate={{ opacity: [0.3, 0, 0.3] }}
                     transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold">
-                    <Landmark className="h-4 w-4 text-forest" strokeWidth={1.75} />
+                  <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-signal">
+                    <Landmark className="h-4 w-4 text-ink" strokeWidth={1.75} />
                   </span>
-                  <span className="relative text-[12.5px] font-medium text-ink">
-                    {adapter.externalLoans.length} lån hos andra — slå ihop till en lägre summa?
+                  <span className="relative text-[12.5px] font-medium text-paper">
+                    {adapter.externalLoans.length} lån hos andra, slå ihop till en lägre summa?
                   </span>
                 </motion.button>
               )}

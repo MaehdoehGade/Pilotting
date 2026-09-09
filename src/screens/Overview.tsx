@@ -1,5 +1,5 @@
 import { Gem } from "lucide-react";
-import type { AnydayAdapter } from "../data/adapter";
+import type { EverydayAdapter } from "../data/adapter";
 import type { SpendGroup } from "../data/types";
 import { getIncome, scheduledByCategory, spendByCategory } from "../lib/finance";
 import { NatureBackdrop } from "../components/NatureBackdrop";
@@ -13,7 +13,7 @@ export function Overview({
   onSelectGroup,
   showFigures,
 }: {
-  adapter: AnydayAdapter;
+  adapter: EverydayAdapter;
   chestTotal: number;
   onOpenChest: () => void;
   onSelectGroup: (group: SpendGroup) => void;
@@ -41,14 +41,14 @@ export function Overview({
         </div>
         <button
           onClick={onOpenChest}
-          className="absolute right-5 top-8 flex h-10 w-10 items-center justify-center rounded-full bg-cream/50 backdrop-blur"
+          className="absolute right-5 top-8 flex h-10 w-10 items-center justify-center rounded-full bg-ink/50 backdrop-blur"
         >
-          <Gem className="h-5 w-5 text-blush" strokeWidth={1.75} />
+          <Gem className="h-5 w-5 text-signal" strokeWidth={1.75} />
         </button>
       </div>
 
       <div className="flex flex-col gap-3 px-5 pb-4 pt-5">
-        <div className="rounded-3xl bg-paper p-3 shadow-soft">
+        <div className="rounded-3xl bg-navy p-3 shadow-soft">
           <MonthBox
             income={income}
             fixedTotal={fixedTotal}

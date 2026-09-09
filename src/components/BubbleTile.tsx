@@ -45,12 +45,12 @@ export function BubbleTile({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.85 }}
             transition={{ type: "spring", stiffness: 420, damping: 24 }}
-            className="absolute -top-9 z-10 flex flex-col items-center whitespace-nowrap rounded-xl bg-ink px-2.5 py-1 text-center shadow-pop"
+            className="absolute -top-9 z-10 flex flex-col items-center whitespace-nowrap rounded-xl bg-paper px-2.5 py-1 text-center shadow-pop"
           >
-            <span className="text-[9.5px] font-medium leading-tight text-cream/70">
+            <span className="text-[9.5px] font-medium leading-tight text-ink/70">
               {category.name}
             </span>
-            <span className="text-[11px] font-semibold leading-tight text-cream">
+            <span className="font-mono text-[11px] font-semibold leading-tight text-ink">
               {formatSEK(amount)}
             </span>
           </motion.span>

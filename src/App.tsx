@@ -14,7 +14,7 @@ import { Chest } from "./screens/Chest";
 
 function loadShowFigures(): boolean {
   try {
-    const stored = window.localStorage.getItem("anyday-show-figures");
+    const stored = window.localStorage.getItem("everyday-show-figures");
     return stored === null ? true : stored === "1";
   } catch {
     return true;
@@ -36,7 +36,7 @@ export default function App() {
     setShowFigures((prev) => {
       const next = !prev;
       try {
-        window.localStorage.setItem("anyday-show-figures", next ? "1" : "0");
+        window.localStorage.setItem("everyday-show-figures", next ? "1" : "0");
       } catch {
         // ignore
       }
@@ -122,8 +122,8 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-cream-dim sm:p-6">
-      <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-cream sm:h-[880px] sm:rounded-[44px] sm:shadow-pop sm:ring-1 sm:ring-white/10">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-navy-2 sm:p-6">
+      <div className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-ink sm:h-[880px] sm:rounded-[44px] sm:shadow-pop sm:ring-1 sm:ring-white/10">
         <div className="relative flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -207,7 +207,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 24 }}
-                className="pointer-events-none absolute bottom-3 left-1/2 z-50 -translate-x-1/2 rounded-full bg-blush px-4 py-2 text-[12px] font-medium text-forest shadow-pop"
+                className="pointer-events-none absolute bottom-3 left-1/2 z-50 -translate-x-1/2 rounded-full bg-signal px-4 py-2 font-mono text-[12px] font-medium text-ink shadow-pop"
               >
                 {toast}
               </motion.div>

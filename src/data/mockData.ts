@@ -9,7 +9,7 @@ import type {
 /**
  * All data in this module stands in for a spreadsheet-backed demo API.
  * Swap `mockData.ts` for a real fetch layer against the same shapes
- * (see data/adapter.ts) to point Anyday at a live backend later.
+ * (see data/adapter.ts) to point Everyday at a live backend later.
  */
 
 export const monthPlan: MonthPlan = {
@@ -48,7 +48,7 @@ export const categories: Category[] = [
     id: "shopping",
     name: "Shopping",
     group: "flowy",
-    color: "blush",
+    color: "amber",
     icon: "ShoppingBag",
     flexibility: 0.75,
   },

@@ -4,7 +4,7 @@ export interface Category {
   id: string;
   name: string;
   group: SpendGroup;
-  color: "forest" | "navy" | "plum" | "slate" | "blush";
+  color: "forest" | "navy" | "plum" | "slate" | "amber";
   icon: string; // lucide-react icon name
   /** How easily this category can be cut in simulation mode, 0..1 */
   flexibility: number;

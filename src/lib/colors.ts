@@ -31,14 +31,9 @@ export const colorSets: Record<ColorKey, ColorSet> = {
     hexSoft: "#74b0a9",
     onHex: "#0d1613",
   },
-  blush: {
-    hex: "#e08fb0",
-    hexSoft: "#eab3c8",
-    onHex: "#2c1420",
+  amber: {
+    hex: "#e8a94e",
+    hexSoft: "#f0c37e",
+    onHex: "#080b16",
   },
 };
-
-/** Reserved for interactive/actionable moments (loan merge CTA, live nudges) —
- * never used for category identity, so it always reads as "do something here". */
-export const goldAccent = "#e8a94e";
-export const goldAccentSoft = "#f0c37e";

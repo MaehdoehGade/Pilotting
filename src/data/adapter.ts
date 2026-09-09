@@ -20,7 +20,7 @@ import type {
  * of transactions/loans/chests) can implement the same interface without
  * touching a single screen.
  */
-export interface AnydayAdapter {
+export interface EverydayAdapter {
   monthPlan: MonthPlan;
   categories: Category[];
   transactions: Transaction[];
@@ -29,7 +29,7 @@ export interface AnydayAdapter {
   savingsChests: SavingsChest[];
 }
 
-export function useMockAdapter(): AnydayAdapter {
+export function useMockAdapter(): EverydayAdapter {
   return {
     monthPlan,
     categories,

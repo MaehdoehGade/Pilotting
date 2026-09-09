@@ -1,39 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand palette, sampled from the Anyday moodboard */
-  --color-forest: #202e17;
-  --color-forest-soft: #384a2c;
-  --color-navy: #3a486d;
-  --color-navy-soft: #56628a;
-  --color-plum: #706688;
-  --color-plum-soft: #8d81a3;
-  --color-slate: #727b7a;
-  --color-slate-soft: #939c9a;
-  --color-blush: #c8b2be;
-  --color-blush-soft: #dccbd4;
+  /* Everyday brand tokens (see the brand book: structure, voice, signal) */
+  --color-ink: #080b16; /* the ground. every screen's base */
+  --color-navy: #131c36; /* elevation: cards, sheets */
+  --color-navy-2: #1b2747; /* elevation: persistent chrome (nav bar), alternate states */
+  --color-line: #26355c; /* structural edges only, never a fill */
+  --color-paper: #f5f1ea; /* primary text and icon color */
+  --color-aluminum: #8d96ac; /* secondary text, captions */
+  --color-signal: #ff3e88; /* the one accent. actions, key numbers, the mark's liquid */
+  --color-signal-dim: #7a1f45; /* signal, muted */
+  --color-pulse: #33e19a; /* functional only: system state, synced, live */
+  --color-static: #ff5a3c; /* functional only: system alert, needs attention */
 
-  /* Bright tints, used only where a status needs to read against the dark ground */
-  --color-forest-bright: #93c17e;
-  --color-plum-bright: #bcaed4;
-  --color-rose: #e2a3b7;
+  --font-sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 
-  /* Reserved for interactive/actionable moments — never category identity */
-  --color-gold: #e8a94e;
-  --color-gold-soft: #f0c37e;
-
-  /* Dark-mode surfaces. Names kept from the original light pass so every
-     existing bg-paper / bg-cream-dim / text-ink call site repaints for free. */
-  --color-cream: #0e1613; /* app background: near-black green-blue */
-  --color-cream-dim: #16211d; /* secondary surface: nav bar, chips */
-  --color-paper: #1c2924; /* card surface */
-  --color-ink: #f2efe8; /* primary text, warm off-white */
-
-  --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.45);
-  --shadow-pop: 0 2px 8px rgba(0, 0, 0, 0.3), 0 20px 40px -14px rgba(0, 0, 0, 0.6);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 2px 8px rgba(0, 0, 0, 0.35), 0 20px 40px -14px rgba(0, 0, 0, 0.65);
 }
 
 html,
@@ -44,9 +29,9 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-cream);
+  background: var(--color-ink);
   font-family: var(--font-sans);
-  color: var(--color-ink);
+  color: var(--color-paper);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
   color-scheme: dark;
@@ -61,8 +46,8 @@ button {
 }
 
 ::selection {
-  background: var(--color-blush);
-  color: var(--color-forest);
+  background: var(--color-signal);
+  color: var(--color-ink);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -71,4 +56,81 @@ button {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Celebration: the one sanctioned loud moment, fired when a decision
+   matches what someone actually wanted. See src/lib/celebrate.ts. */
+.celebrate-anchor {
+  position: relative;
+}
+.celebrate-burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+.celebrate-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  border: 2px solid var(--color-signal);
+  animation: celebrate-ring-pop 640ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes celebrate-ring-pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+.celebrate-drop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: var(--color-signal);
+  border-radius: 50%;
+  animation: celebrate-drop-fly 580ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes celebrate-drop-fly {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.85);
+    opacity: 0;
+  }
+}
+.celebrate-bounce {
+  animation: celebrate-bounce-pulse 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes celebrate-bounce-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

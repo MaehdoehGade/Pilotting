@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { PiggyBank } from "lucide-react";
 import { useMemo } from "react";
-import type { AnydayAdapter } from "../data/adapter";
+import type { EverydayAdapter } from "../data/adapter";
 import type { SpendGroup } from "../data/types";
 import { computeProjection, getIncome, scheduledByCategory, spendByCategory, type SlashMap } from "../lib/finance";
+import { celebrate } from "../lib/celebrate";
 import { formatSEK } from "../lib/money";
 import { colorSets } from "../lib/colors";
 import { BubbleTile } from "../components/BubbleTile";
@@ -22,7 +23,7 @@ export function Simulate({
   onOpenChest,
   showFigures,
 }: {
-  adapter: AnydayAdapter;
+  adapter: EverydayAdapter;
   chestTotal: number;
   slashed: SlashMap;
   onToggleSlash: (categoryId: string, instanceId: string) => void;
@@ -53,14 +54,14 @@ export function Simulate({
     <div className="flex h-full flex-col overflow-y-auto no-scrollbar">
       <div className="px-5 pb-1 pt-14">
         <MonthProgress today={projection.daysElapsed} daysInMonth={projection.daysElapsed + projection.daysRemaining} />
-        <p className="mt-2 text-[11px] leading-snug text-slate-soft">
+        <p className="mt-2 text-[11px] leading-snug text-aluminum">
           Prognos för resten av {adapter.monthPlan.monthLabel}, baserat på ditt mönster hittills.
           Fast är låst. Slasha Flowy-köp du bestämmer dig för att hoppa över.
         </p>
       </div>
 
       <div className="flex flex-col gap-3 px-5 pb-4 pt-3">
-        <div className="rounded-3xl bg-paper p-3 shadow-soft">
+        <div className="rounded-3xl bg-navy p-3 shadow-soft">
           <MonthBox
             income={income}
             fixedTotal={fixedTotal}
@@ -80,11 +81,14 @@ export function Simulate({
               exit={{ scale: 0.85, opacity: 0 }}
               whileTap={{ scale: 0.94 }}
               transition={{ type: "spring", stiffness: 380, damping: 20 }}
-              onClick={() => onMoveToChest(Math.round(projection.totalSavedBySlash))}
-              className="flex items-center justify-center gap-2 rounded-full bg-blush px-4 py-2.5 text-forest shadow-soft"
+              onClick={(e) => {
+                celebrate(e.currentTarget);
+                onMoveToChest(Math.round(projection.totalSavedBySlash));
+              }}
+              className="celebrate-anchor flex items-center justify-center gap-2 rounded-full bg-signal px-4 py-2.5 text-ink shadow-soft"
             >
               <PiggyBank className="h-4 w-4" strokeWidth={2} />
-              <span className="text-[13px] font-semibold">
+              <span className="font-mono text-[13px] font-semibold">
                 {formatSEK(projection.totalSavedBySlash)}
               </span>
             </motion.button>
@@ -97,7 +101,7 @@ export function Simulate({
           const slashedIds = slashed[category.id] ?? new Set<string>();
 
           return (
-            <div key={category.id} className="flex items-start gap-3 rounded-2xl bg-paper p-3.5 shadow-soft">
+            <div key={category.id} className="flex items-start gap-3 rounded-2xl bg-navy p-3.5 shadow-soft">
               <BubbleTile
                 category={category}
                 amount={proj.projectedTotal}

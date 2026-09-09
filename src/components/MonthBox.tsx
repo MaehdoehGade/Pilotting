@@ -3,18 +3,22 @@ import { Lock, PiggyBank, Waves, Wallet } from "lucide-react";
 import type { SpendGroup } from "../data/types";
 import { colorSets } from "../lib/colors";
 import { formatSEK } from "../lib/money";
-import { squarify } from "../lib/treemap";
 
-const CANVAS_W = 390;
-const CANVAS_H = 240;
-const GAP = 3;
+const VB_W = 390;
+const VB_H = 180;
+const JAR_LEFT = 145;
+const JAR_RIGHT = 245;
+const JAR_TOP = 14;
+const JAR_BOTTOM = 166;
+const JAR_H = JAR_BOTTOM - JAR_TOP;
+const WAVE_AMP = 4;
 
 /**
- * The one box, sized by income, that both Overview and Simulate render.
- * Only two spend groups ever show at this level — Fast and Flyt — plus
- * what's saved and what's still unused; tapping Fast/Flyt is how you get
- * to the categories inside. If a screen's total exceeds income, there's
- * no negative area to draw, so an overflow banner takes over instead.
+ * The one jar, sized by income, that both Overview and Simulate render.
+ * Money pours in and sinks: Fixed settles at the bottom (it's already
+ * spoken for), Flowy floats on top of it. What's left empty at the top is
+ * unused. If a screen's total exceeds income there's no room left to draw,
+ * so an overflow banner takes over instead of stretching the jar.
  */
 export function MonthBox({
   income,
@@ -33,112 +37,122 @@ export function MonthBox({
   onSelectGroup: (group: SpendGroup) => void;
   onSelectSaved: () => void;
 }) {
-  const allocated = fixedTotal + flowyTotal + savedTotal;
+  const allocated = fixedTotal + flowyTotal;
   const overflow = Math.max(allocated - income, 0);
   const unused = Math.max(income - allocated, 0);
 
-  const leaves = [
-    { id: "fixed", value: fixedTotal },
-    { id: "flowy", value: flowyTotal },
-    ...(savedTotal > 0 ? [{ id: "saved", value: savedTotal }] : []),
-    ...(unused > 0 ? [{ id: "unused", value: unused }] : []),
-  ];
-  const rects = squarify(leaves, 0, 0, CANVAS_W, CANVAS_H);
+  // Normal: fractions of income, leaving empty headspace for what's unused.
+  // Overflowing: no headspace left, the jar reads full, split by ratio.
+  const fixedFrac = overflow > 0 ? fixedTotal / allocated : fixedTotal / income;
+  const flowyFrac = overflow > 0 ? flowyTotal / allocated : flowyTotal / income;
 
-  const groupMeta: Record<"fixed" | "flowy", { colorHex: string; onHex: string; Icon: typeof Lock; label: string }> = {
-    fixed: { colorHex: colorSets.navy.hex, onHex: colorSets.navy.onHex, Icon: Lock, label: "Fast" },
-    flowy: { colorHex: colorSets.plum.hex, onHex: colorSets.plum.onHex, Icon: Waves, label: "Flyt" },
-  };
+  const fixedH = fixedFrac * JAR_H;
+  const flowyH = flowyFrac * JAR_H;
+  const boundaryY = JAR_BOTTOM - fixedH;
+  const waveY = boundaryY - flowyH;
+  const midX = (JAR_LEFT + JAR_RIGHT) / 2;
+  const q1x = JAR_LEFT + (JAR_RIGHT - JAR_LEFT) / 4;
+
+  const fixedColor = colorSets.navy.hex;
+  const flowyColor = colorSets.plum.hex;
+
+  const flowyPath = `M${JAR_LEFT},${boundaryY} L${JAR_LEFT},${waveY} Q${q1x},${waveY - WAVE_AMP} ${midX},${waveY} T${JAR_RIGHT},${waveY} L${JAR_RIGHT},${boundaryY} Z`;
 
   return (
     <div>
       {overflow > 0 && (
-        <div className="mb-2 flex items-center justify-center rounded-xl bg-rose/15 py-1.5">
-          <span className="text-[11px] font-semibold text-rose">Överdrag {formatSEK(overflow)}</span>
+        <div className="mb-2 flex items-center justify-center rounded-xl bg-static/15 py-1.5">
+          <span className="font-mono text-[11px] font-semibold text-static">Överdrag {formatSEK(overflow)}</span>
         </div>
       )}
-      <div className="relative w-full overflow-hidden rounded-3xl" style={{ height: CANVAS_H }}>
-        {rects.map((rect) => {
-          const gx = Math.min(GAP, rect.w / 4);
-          const gy = Math.min(GAP, rect.h / 4);
-          const style = {
-            left: `${((rect.x + gx) / CANVAS_W) * 100}%`,
-            top: `${((rect.y + gy) / CANVAS_H) * 100}%`,
-            width: `${((rect.w - gx * 2) / CANVAS_W) * 100}%`,
-            height: `${((rect.h - gy * 2) / CANVAS_H) * 100}%`,
-          };
-          const canLabel = rect.w > 64 && rect.h > 46;
 
-          if (rect.id === "unused") {
-            return (
-              <div
-                key="unused"
-                className="absolute flex items-center justify-center rounded-lg border-2 border-dashed border-white/15"
-                style={style}
-              >
-                {canLabel && (
-                  <div className="flex flex-col items-center gap-1 text-slate-soft">
-                    <Wallet className="h-4 w-4" strokeWidth={1.75} />
-                    {showFigures && (
-                      <span className="text-[10px] font-medium leading-none">{formatSEK(unused)}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          }
+      <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full" style={{ height: VB_H }} aria-hidden>
+        <defs>
+          <clipPath id="jarClip">
+            <rect x={JAR_LEFT} y={JAR_TOP} width={JAR_RIGHT - JAR_LEFT} height={JAR_H} rx={16} />
+          </clipPath>
+        </defs>
+        <rect
+          x={JAR_LEFT}
+          y={JAR_TOP}
+          width={JAR_RIGHT - JAR_LEFT}
+          height={JAR_H}
+          rx={16}
+          fill="none"
+          stroke="var(--color-line)"
+          strokeWidth={2}
+        />
+        <g clipPath="url(#jarClip)">
+          <motion.rect
+            x={JAR_LEFT}
+            width={JAR_RIGHT - JAR_LEFT}
+            fill={fixedColor}
+            initial={false}
+            animate={{ y: boundaryY, height: JAR_BOTTOM - boundaryY }}
+            transition={{ type: "spring", stiffness: 120, damping: 20 }}
+          />
+          <motion.path
+            fill={flowyColor}
+            initial={false}
+            animate={{ d: flowyPath }}
+            transition={{ type: "spring", stiffness: 120, damping: 20 }}
+          />
+        </g>
+      </svg>
 
-          if (rect.id === "saved") {
-            return (
-              <motion.button
-                key="saved"
-                onClick={onSelectSaved}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                className="absolute flex items-center justify-center rounded-lg"
-                style={{ ...style, backgroundColor: "#e08fb0" }}
-              >
-                <div className="flex flex-col items-center gap-1 text-[#2c1420]">
-                  <PiggyBank className="h-4 w-4" strokeWidth={1.75} />
-                  {canLabel && showFigures && (
-                    <span className="text-[10px] font-semibold leading-none">{formatSEK(savedTotal)}</span>
-                  )}
-                </div>
-              </motion.button>
-            );
-          }
+      <div className="mt-3 flex flex-col gap-2">
+        <button
+          onClick={() => onSelectGroup("fixed")}
+          className="flex items-center justify-between rounded-2xl bg-navy-2 px-3.5 py-2.5"
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full" style={{ backgroundColor: fixedColor }}>
+              <Lock className="h-3.5 w-3.5" strokeWidth={2} style={{ color: colorSets.navy.onHex }} />
+            </span>
+            <span className="text-[13px] font-medium text-paper">Fast</span>
+          </span>
+          {showFigures && <span className="font-mono text-[13px] font-semibold text-paper">{formatSEK(fixedTotal)}</span>}
+        </button>
 
-          const key = rect.id as "fixed" | "flowy";
-          const meta = groupMeta[key];
-          return (
-            <motion.button
-              key={key}
-              onClick={() => onSelectGroup(key)}
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              className={`absolute flex flex-col items-center justify-center gap-1 ${
-                key === "fixed" ? "rounded-md" : "rounded-2xl"
-              }`}
-              style={{ ...style, backgroundColor: meta.colorHex }}
-            >
-              <meta.Icon className="h-5 w-5" strokeWidth={1.75} style={{ color: meta.onHex }} />
-              {canLabel && (
-                <span className="text-center text-[11px] font-medium leading-tight" style={{ color: meta.onHex }}>
-                  {meta.label}
-                  {showFigures && (
-                    <>
-                      <br />
-                      <span className="font-semibold">{formatSEK(rect.value)}</span>
-                    </>
-                  )}
-                </span>
-              )}
-            </motion.button>
-          );
-        })}
+        <button
+          onClick={() => onSelectGroup("flowy")}
+          className="flex items-center justify-between rounded-2xl bg-navy-2 px-3.5 py-2.5"
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full" style={{ backgroundColor: flowyColor }}>
+              <Waves className="h-3.5 w-3.5" strokeWidth={2} style={{ color: colorSets.plum.onHex }} />
+            </span>
+            <span className="text-[13px] font-medium text-paper">Flyt</span>
+          </span>
+          {showFigures && <span className="font-mono text-[13px] font-semibold text-paper">{formatSEK(flowyTotal)}</span>}
+        </button>
+
+        {unused > 0 && (
+          <div className="flex items-center justify-between rounded-2xl border border-dashed border-line px-3.5 py-2.5">
+            <span className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-2">
+                <Wallet className="h-3.5 w-3.5 text-aluminum" strokeWidth={2} />
+              </span>
+              <span className="text-[13px] font-medium text-aluminum">Oanvänt</span>
+            </span>
+            {showFigures && <span className="font-mono text-[13px] font-semibold text-aluminum">{formatSEK(unused)}</span>}
+          </div>
+        )}
+
+        {savedTotal > 0 && (
+          <button
+            onClick={onSelectSaved}
+            className="flex items-center justify-between rounded-2xl bg-navy-2 px-3.5 py-2.5"
+          >
+            <span className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-signal">
+                <PiggyBank className="h-3.5 w-3.5 text-ink" strokeWidth={2} />
+              </span>
+              <span className="text-[13px] font-medium text-paper">Sparat</span>
+            </span>
+            {showFigures && <span className="font-mono text-[13px] font-semibold text-paper">{formatSEK(savedTotal)}</span>}
+          </button>
+        )}
       </div>
     </div>
   );

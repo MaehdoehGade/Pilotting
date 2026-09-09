@@ -17,12 +17,12 @@ export function NumbersToggle({
       aria-label={on ? "Stäng av siffror" : "Slå på siffror"}
       className="flex items-center gap-1.5 rounded-full bg-white/10 py-1.5 pl-2.5 pr-1.5 backdrop-blur"
     >
-      <span className={`text-[10px] font-bold tracking-tight ${on ? "text-ink" : "text-slate-soft"}`}>
+      <span className={`font-mono text-[10px] font-bold tracking-tight ${on ? "text-paper" : "text-aluminum"}`}>
         #s
       </span>
       <span
         className="relative h-4 w-7 rounded-full transition-colors"
-        style={{ backgroundColor: on ? "#e08fb0" : "rgba(255,255,255,0.15)" }}
+        style={{ backgroundColor: on ? "#ff3e88" : "rgba(255,255,255,0.15)" }}
       >
         <motion.span
           className="absolute top-0.5 h-3 w-3 rounded-full bg-white"

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Lock, X } from "lucide-react";
-import type { AnydayAdapter } from "../data/adapter";
+import type { EverydayAdapter } from "../data/adapter";
 import { colorSets } from "../lib/colors";
 import { formatSEK } from "../lib/money";
 import { CategoryIcon } from "./Icon";
@@ -15,7 +15,7 @@ export function CategoryDetailSheet({
   categoryId,
   onClose,
 }: {
-  adapter: AnydayAdapter;
+  adapter: EverydayAdapter;
   categoryId: string | null;
   onClose: () => void;
 }) {
@@ -52,9 +52,9 @@ export function CategoryDetailSheet({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 340, damping: 32 }}
-            className="absolute inset-x-0 bottom-0 z-40 flex max-h-[80%] flex-col rounded-t-3xl bg-paper shadow-pop"
+            className="absolute inset-x-0 bottom-0 z-40 flex max-h-[80%] flex-col rounded-t-3xl bg-navy shadow-pop"
           >
-            <div className="flex items-center gap-3 border-b border-white/5 p-5">
+            <div className="flex items-center gap-3 border-b border-line/40 p-5">
               <span
                 className={`flex h-11 w-11 shrink-0 items-center justify-center ${
                   isFixed ? "rounded-xl" : "rounded-full"
@@ -64,42 +64,42 @@ export function CategoryDetailSheet({
                 <CategoryIcon name={category.icon} className="h-5 w-5" style={{ color: colors.onHex }} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-semibold text-ink">{category.name}</p>
-                <p className="text-[12px] text-slate-soft">{formatSEK(total)}</p>
+                <p className="truncate text-[14px] font-semibold text-paper">{category.name}</p>
+                <p className="font-mono text-[12px] text-aluminum">{formatSEK(total)}</p>
               </div>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream-dim"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy-2"
               >
-                <X className="h-4 w-4 text-slate-soft" strokeWidth={2} />
+                <X className="h-4 w-4 text-aluminum" strokeWidth={2} />
               </button>
             </div>
 
             {isFixed && (
-              <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-cream-dim px-3 py-2">
-                <Lock className="h-3.5 w-3.5 shrink-0 text-slate-soft" strokeWidth={2} />
-                <p className="text-[11px] text-slate-soft">
-                  Fast — de här går inte att skippa i simuleringen.
+              <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-navy-2 px-3 py-2">
+                <Lock className="h-3.5 w-3.5 shrink-0 text-aluminum" strokeWidth={2} />
+                <p className="text-[11px] text-aluminum">
+                  Fast, det här går inte att skippa i simuleringen.
                 </p>
               </div>
             )}
 
             <div className="flex-1 overflow-y-auto px-5 py-3 no-scrollbar">
-              <div className="flex flex-col divide-y divide-white/5">
+              <div className="flex flex-col divide-y divide-line/30">
                 {rows.map((r) => (
                   <div key={r.id} className="flex items-center justify-between gap-3 py-2.5">
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] font-medium text-ink">{r.merchant}</p>
-                      <p className="text-[11px] text-slate-soft">
+                      <p className="truncate text-[13px] font-medium text-paper">{r.merchant}</p>
+                      <p className="text-[11px] text-aluminum">
                         {formatDate(r.date)}
                         {r.upcoming ? " · kommande" : ""}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {r.loanId && (
-                        <Lock className="h-3 w-3 text-slate-soft" strokeWidth={2} />
+                        <Lock className="h-3 w-3 text-aluminum" strokeWidth={2} />
                       )}
-                      <span className="text-[13px] font-semibold text-ink">
+                      <span className="font-mono text-[13px] font-semibold text-paper">
                         {formatSEK(r.amount)}
                       </span>
                     </div>
