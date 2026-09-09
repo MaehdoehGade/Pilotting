@@ -36,6 +36,15 @@ bouncy, candy-crush-style transitions, and lucide-react for outline icons.
 Illustration is flat geometric shapes (hills, pines, a minimal skyline) —
 no photography, no wildlife.
 
+## The browser extension
+
+`extension/` is a companion prototype: a Manifest V3 extension that catches
+the moment of a purchase decision itself, not just the review of it
+afterward. It detects a checkout total on the current page and shows the
+same kind of comparison the app makes — a bubble sized to what's actually
+left in your month, plus "≈ 2 × Espresso House" instead of an abstract
+number. See `extension/README.md` for the reasoning and how to load it.
+
 ## Running it
 
 ```bash
